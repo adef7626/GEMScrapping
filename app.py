@@ -25,23 +25,16 @@ crawled_results = []
 
 # Define directories
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_DIR = os.path.join(BASE_DIR, "static")
-ROOT_DIR = os.path.dirname(BASE_DIR)
-DOWNLOADS_DIR = os.path.join(ROOT_DIR, "downloads")
+DOWNLOADS_DIR = os.path.join(BASE_DIR, "downloads")
 EXPORT_PATH = os.path.join(BASE_DIR, "crawled_tenders.xlsx")
 REPORT_PATH = os.path.join(BASE_DIR, "crawled_tenders_report.html")
 
 # Ensure directories exist
-os.makedirs(STATIC_DIR, exist_ok=True)
-os.makedirs(os.path.join(STATIC_DIR, "css"), exist_ok=True)
-os.makedirs(os.path.join(STATIC_DIR, "js"), exist_ok=True)
-
-# Mount static files
-app.mount("/src/static", StaticFiles(directory=STATIC_DIR), name="static")
+os.makedirs(DOWNLOADS_DIR, exist_ok=True)
 
 @app.get("/", response_class=HTMLResponse)
 async def serve_index():
-    index_path = os.path.join(ROOT_DIR, "index.html")
+    index_path = os.path.join(BASE_DIR, "index.html")
     if os.path.exists(index_path):
         with open(index_path, "r", encoding="utf-8") as f:
             return f.read()
@@ -49,14 +42,14 @@ async def serve_index():
 
 @app.get("/styles.css")
 async def serve_root_css():
-    css_path = os.path.join(ROOT_DIR, "styles.css")
+    css_path = os.path.join(BASE_DIR, "styles.css")
     if os.path.exists(css_path):
         return FileResponse(css_path, media_type="text/css")
     return HTMLResponse("CSS file not found", status_code=404)
 
 @app.get("/main.js")
 async def serve_root_js():
-    js_path = os.path.join(ROOT_DIR, "main.js")
+    js_path = os.path.join(BASE_DIR, "main.js")
     if os.path.exists(js_path):
         return FileResponse(js_path, media_type="application/javascript")
     return HTMLResponse("JS file not found", status_code=404)
