@@ -35,9 +35,9 @@ document.addEventListener("DOMContentLoaded", () => {
     let activeFilter = "all";
     let eventSource = null;
 
-    // Helper: Determine API URL (Absolute localhost if page is opened as static file, otherwise relative)
+    // Helper: Determine API URL (Absolute localhost if opened locally/GitHub Pages, otherwise relative)
     function getApiUrl(path) {
-        if (window.location.protocol === "file:") {
+        if (window.location.protocol === "file:" || window.location.hostname.endsWith("github.io")) {
             return `http://127.0.0.1:8000${path}`;
         }
         return path;
