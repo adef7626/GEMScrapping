@@ -123,10 +123,40 @@ class GeMTenderCrawler:
                         ministry = lines[i+1]
                     break
                     
+            # Location (Office Name)
+            location = "Unknown"
+            for i, line in enumerate(lines):
+                match = re.search(r'(?:/)?\s*(?:office\s*name)\s*(.*)', line, re.IGNORECASE)
+                if match:
+                    val = match.group(1).strip()
+                    val = re.sub(r'^[:\-\s/]+', '', val).strip()
+                    if val:
+                        location = val
+                    else:
+                        if i + 1 < len(lines):
+                            location = lines[i+1].strip()
+                    break
+                    
+            # Quantity (Total Quantity)
+            quantity = "Unknown"
+            for i, line in enumerate(lines):
+                match = re.search(r'(?:/)?\s*(?:total\s*quantity)\s*(.*)', line, re.IGNORECASE)
+                if match:
+                    val = match.group(1).strip()
+                    val = re.sub(r'^[:\-\s/]+', '', val).strip()
+                    if val:
+                        quantity = val
+                    else:
+                        if i + 1 < len(lines):
+                            quantity = lines[i+1].strip()
+                    break
+                    
             return {
                 "success": True,
                 "bid_number": bid_num,
                 "item_category": item_category,
+                "location": location,
+                "quantity": quantity,
                 "startup_relaxation": startup_relaxation,
                 "mse_relaxation": mse_relaxation,
                 "end_date": end_date,
@@ -270,13 +300,12 @@ class GeMTenderCrawler:
                             data["url"] = url
                             data["search_category"] = category_name
                             
-                            # Delete PDF if it is NOT startup relaxed
-                            if data.get("startup_relaxation", "No").lower() != "yes":
-                                try:
-                                    os.remove(pdf_path)
-                                    yield {"type": "log", "message": f"Deleted PDF (not startup relaxed): {doc_id}.pdf"}
-                                except Exception as ex:
-                                    yield {"type": "log", "message": f"Warning: Failed to delete PDF: {str(ex)}"}
+                            # Delete PDF after parsing to keep disk space clean
+                            try:
+                                os.remove(pdf_path)
+                                yield {"type": "log", "message": f"Deleted PDF: {doc_id}.pdf"}
+                            except Exception as ex:
+                                yield {"type": "log", "message": f"Warning: Failed to delete PDF: {str(ex)}"}
                             
                             yield {
                                 "type": "bid_result",

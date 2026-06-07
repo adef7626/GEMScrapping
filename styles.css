@@ -137,22 +137,27 @@ body {
     font-weight: 500;
 }
 
-/* Dashboard Content Grid */
+/* Dashboard Content Container */
 .main-content {
     flex: 1;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 24px;
-    margin-top: 32px;
+    margin-top: 24px;
     margin-bottom: 48px;
 }
 
+#setup-page {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+}
+
+#results-page {
+    display: block;
+    width: 100%;
+}
+
 @media (min-width: 1024px) {
-    .main-content {
+    #setup-page {
         grid-template-columns: 1.1fr 0.9fr;
-    }
-    .results-panel {
-        grid-column: 1 / span 2;
     }
 }
 
@@ -884,4 +889,69 @@ input[type="text"]:focus, input[type="search"]:focus {
     vertical-align: middle;
     box-shadow: 0 0 8px rgba(255, 183, 3, 0.05);
 }
+
+/* Navigation Tabs & Page Structure */
+.navigation-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 24px;
+    margin-bottom: 8px;
+    padding: 0 24px;
+}
+
+.tab-btn {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(8px);
+}
+
+.tab-btn:hover {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.tab-btn.active {
+    color: var(--accent);
+    background: rgba(0, 245, 255, 0.08);
+    border-color: var(--accent);
+    box-shadow: 0 0 15px rgba(0, 245, 255, 0.15);
+}
+
+.tab-content {
+    width: 100%;
+}
+
+.tab-content.hide {
+    display: none !important;
+}
+
+/* Launch Section Top Layout inside category manager */
+.launch-section-top {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.settings-group-inline {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
 

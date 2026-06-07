@@ -28,6 +28,31 @@ document.addEventListener("DOMContentLoaded", () => {
     const exportHtmlBtn = document.getElementById("export-html-btn");
     const tableBody = document.getElementById("table-body");
     const resultsSummary = document.getElementById("results-summary");
+    
+    // Tab Elements
+    const tabBtnSetup = document.getElementById("tab-btn-setup");
+    const tabBtnResults = document.getElementById("tab-btn-results");
+    const setupPage = document.getElementById("setup-page");
+    const resultsPage = document.getElementById("results-page");
+    
+    // Tab Navigation Logic
+    tabBtnSetup.addEventListener("click", () => {
+        tabBtnSetup.classList.add("active");
+        tabBtnResults.classList.remove("active");
+        setupPage.classList.remove("hide");
+        setupPage.classList.add("active");
+        resultsPage.classList.add("hide");
+        resultsPage.classList.remove("active");
+    });
+    
+    tabBtnResults.addEventListener("click", () => {
+        tabBtnResults.classList.add("active");
+        tabBtnSetup.classList.remove("active");
+        resultsPage.classList.remove("hide");
+        resultsPage.classList.add("active");
+        setupPage.classList.add("hide");
+        setupPage.classList.remove("active");
+    });
 
     // Internal State: targetCategories stores objects: { name: string, checked: boolean }
     let targetCategories = [];
@@ -37,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Helper: Determine API URL (Absolute localhost if opened locally/GitHub Pages, otherwise relative)
     function getApiUrl(path) {
-        if (window.location.protocol === "file:" || window.location.hostname.endsWith("github.io")) {
+        if (window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
             return `http://127.0.0.1:8000${path}`;
         }
         return path;
@@ -324,6 +349,9 @@ document.addEventListener("DOMContentLoaded", () => {
             filterBtns.forEach(btn => btn.disabled = false);
             exportExcelBtn.disabled = false;
             exportHtmlBtn.disabled = false;
+            
+            // Auto switch to Parsed Tender Results tab upon completion
+            tabBtnResults.click();
         }
         
         updateResultsSummary();
@@ -350,7 +378,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (filtered.length === 0) {
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="8" class="no-data-cell">
+                    <td colspan="10" class="no-data-cell">
                         ${crawledBids.length === 0 ? "No tenders crawled yet. Upload and execute a crawl to view data." : "No tenders match active filters."}
                     </td>
                 </tr>
@@ -370,6 +398,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td style="font-weight: 600; color: var(--accent);">${bid.bid_number}</td>
                 <td style="color: var(--text-muted); font-size: 11px;" title="${bid.search_category}">${bid.search_category}</td>
                 <td>${bid.item_category}${warningBadge}</td>
+                <td>${bid.location || "Unknown"}</td>
+                <td style="text-align: center; font-weight: 600;">${bid.quantity || "Unknown"}</td>
                 <td><span class="status-pill ${startupClass}">${bid.startup_relaxation}</span></td>
                 <td><span class="status-pill ${mseClass}">${bid.mse_relaxation}</span></td>
                 <td style="white-space: nowrap;">${bid.end_date}</td>
@@ -403,6 +433,8 @@ document.addEventListener("DOMContentLoaded", () => {
             <td style="font-weight: 600; color: var(--accent);">${bid.bid_number}</td>
             <td style="color: var(--text-muted); font-size: 11px;" title="${bid.search_category}">${bid.search_category}</td>
             <td>${bid.item_category}${warningBadge}</td>
+            <td>${bid.location || "Unknown"}</td>
+            <td style="text-align: center; font-weight: 600;">${bid.quantity || "Unknown"}</td>
             <td><span class="status-pill ${startupClass}">${bid.startup_relaxation}</span></td>
             <td><span class="status-pill ${mseClass}">${bid.mse_relaxation}</span></td>
             <td style="white-space: nowrap;">${bid.end_date}</td>
@@ -434,6 +466,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 b.bid_number.toLowerCase().includes(query) ||
                 b.search_category.toLowerCase().includes(query) ||
                 b.item_category.toLowerCase().includes(query) ||
+                (b.location && b.location.toLowerCase().includes(query)) ||
+                (b.quantity && String(b.quantity).toLowerCase().includes(query)) ||
                 b.ministry.toLowerCase().includes(query)
             );
         }

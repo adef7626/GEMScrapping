@@ -119,7 +119,17 @@ async def export_results():
         if "success" in df.columns:
             df = df.drop(columns=["success"])
             
-        cols = ["bid_number", "search_category", "item_category", "startup_relaxation", "mse_relaxation", "end_date", "ministry", "url"]
+        # Clean control characters for Excel compatibility (openpyxl raises error on control chars)
+        import re
+        clean_re = re.compile(r'[\x00-\x08\x0B\x0C\x0E-\x1F]')
+        def clean_val(val):
+            if isinstance(val, str):
+                return clean_re.sub('', val)
+            return val
+        for col in df.columns:
+            df[col] = df[col].apply(clean_val)
+            
+        cols = ["bid_number", "search_category", "item_category", "location", "quantity", "startup_relaxation", "mse_relaxation", "end_date", "ministry", "url"]
         df = df[[c for c in cols if c in df.columns]]
         
         df.to_excel(EXPORT_PATH, index=False)
@@ -287,6 +297,8 @@ async def export_html_results():
                         <th>Bid Number</th>
                         <th>Search Category</th>
                         <th>Item Category</th>
+                        <th>Location</th>
+                        <th>Quantity Required</th>
                         <th>Startup Relaxation</th>
                         <th>MSE Relaxation</th>
                         <th>End Date</th>
@@ -306,7 +318,7 @@ async def export_html_results():
         function isCategoryMatching(target, extracted) {{
             if (!target || !extracted) return false;
             const clean = (s) => s.toLowerCase()
-                .replace(/\(q\d+\)/g, "")
+                .replace(/\\(q\\d+\\)/g, "")
                 .replace(/[^a-z0-9]/g, "")
                 .trim();
             const t = clean(target);
@@ -319,7 +331,7 @@ async def export_html_results():
             tbody.innerHTML = "";
             
             if (list.length === 0) {{
-                tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); font-style: italic; padding: 24px;">No results found</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--text-muted); font-style: italic; padding: 24px;">No results found</td></tr>`;
                 document.getElementById("count").textContent = 0;
                 return;
             }}
@@ -333,14 +345,16 @@ async def export_html_results():
                 const warningBadge = isMatch ? "" : `<span class="mismatch-badge" title="Extracted category does not match target category. Please verify manually.">⚠️ Mismatch</span>`;
                 
                 tr.innerHTML = `
-                    <td style="font-weight: 600; color: var(--accent); font-family: monospace;">\${b.bid_number}</td>
-                    <td style="color: var(--text-muted); font-size: 11px;">\${b.search_category}</td>
-                    <td>\${b.item_category}\${warningBadge}</td>
-                    <td><span class="status-pill \${startupClass}">\${b.startup_relaxation}</span></td>
-                    <td><span class="status-pill \${mseClass}">\${b.mse_relaxation}</span></td>
-                    <td style="white-space: nowrap;">\${b.end_date}</td>
-                    <td>\${b.ministry}</td>
-                    <td><a href="\${b.url}" target="_blank">View PDF</a></td>
+                    <td style="font-weight: 600; color: var(--accent); font-family: monospace;">${{b.bid_number}}</td>
+                    <td style="color: var(--text-muted); font-size: 11px;">${{b.search_category}}</td>
+                    <td>${{b.item_category}}${{warningBadge}}</td>
+                    <td>${{b.location || "Unknown"}}</td>
+                    <td style="text-align: center; font-weight: 600;">${{b.quantity || "Unknown"}}</td>
+                    <td><span class="status-pill ${{startupClass}}">${{b.startup_relaxation}}</span></td>
+                    <td><span class="status-pill ${{mseClass}}">${{b.mse_relaxation}}</span></td>
+                    <td style="white-space: nowrap;">${{b.end_date}}</td>
+                    <td>${{b.ministry}}</td>
+                    <td><a href="${{b.url}}" target="_blank">View PDF</a></td>
                 `;
                 tbody.appendChild(tr);
             }});
@@ -358,6 +372,8 @@ async def export_html_results():
                 b.bid_number.toLowerCase().includes(q) ||
                 b.search_category.toLowerCase().includes(q) ||
                 b.item_category.toLowerCase().includes(q) ||
+                (b.location && b.location.toLowerCase().includes(q)) ||
+                (b.quantity && String(b.quantity).toLowerCase().includes(q)) ||
                 b.ministry.toLowerCase().includes(q)
             );
             renderTable(filtered);

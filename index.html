@@ -27,147 +27,160 @@
         </div>
     </header>
 
+    <!-- 2-Button Tab Navigation Platform -->
+    <nav class="navigation-tabs">
+        <button class="tab-btn active" id="tab-btn-setup">
+            ⚙️ Tender Setup & Execution
+        </button>
+        <button class="tab-btn" id="tab-btn-results">
+            📊 Parsed Tender Results
+        </button>
+    </nav>
+
     <main class="container main-content">
-        <!-- Configuration and Execution Panel -->
-        <section class="control-panel">
-            <!-- Step 1: Upload Excel -->
-            <div class="card glass-card upload-card">
-                <div class="card-header">
-                    <h2><span class="step-num">1</span> Upload Category Excel</h2>
-                </div>
-                <div class="card-body">
-                    <div class="drag-drop-zone" id="drop-zone">
-                        <span class="upload-icon">📄</span>
-                        <p class="drag-text">Drag & drop your Excel file here or <span class="browse-link">browse</span></p>
-                        <p class="file-limits">Supports .xlsx and .xls formats</p>
-                        <input type="file" id="file-input" accept=".xlsx, .xls" hidden>
+        <!-- Page 1: Setup & Execution -->
+        <div id="setup-page" class="tab-content active">
+            <!-- Configuration and Execution Panel -->
+            <section class="control-panel">
+                <!-- Step 1: Upload Excel -->
+                <div class="card glass-card upload-card">
+                    <div class="card-header">
+                        <h2><span class="step-num">1</span> Upload Category Excel</h2>
                     </div>
-                    <div class="selected-file-area hide" id="file-details">
-                        <span class="file-icon">📈</span>
-                        <div class="file-info">
-                            <span class="file-name" id="file-name-label">categories.xlsx</span>
-                            <span class="file-size" id="file-size-label">12 KB</span>
+                    <div class="card-body">
+                        <div class="drag-drop-zone" id="drop-zone">
+                            <span class="upload-icon">📄</span>
+                            <p class="drag-text">Drag & drop your Excel file here or <span class="browse-link">browse</span></p>
+                            <p class="file-limits">Supports .xlsx and .xls formats</p>
+                            <input type="file" id="file-input" accept=".xlsx, .xls" hidden>
                         </div>
-                        <button class="remove-file-btn" id="remove-file-btn" title="Remove file">×</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Step 2: Manage Categories -->
-            <div class="card glass-card category-card">
-                <div class="card-header">
-                    <h2><span class="step-num">2</span> Target Categories</h2>
-                    <span class="badge" id="category-count">0 Selected</span>
-                </div>
-                <div class="card-body category-body">
-                    <div class="category-manager">
-                        <input type="text" id="manual-category-input" placeholder="Type category name manually...">
-                        <button class="btn btn-secondary" id="add-category-btn">Add</button>
-                    </div>
-                    <div class="category-list-controls" id="list-controls-area">
-                        <input type="text" id="category-search-input" placeholder="Search loaded categories...">
-                        <div class="list-actions">
-                            <button class="link-btn" id="select-all-cats">Select All</button>
-                            <button class="link-btn" id="deselect-all-cats">Deselect All</button>
+                        <div class="selected-file-area hide" id="file-details">
+                            <span class="file-icon">📈</span>
+                            <div class="file-info">
+                                <span class="file-name" id="file-name-label">categories.xlsx</span>
+                                <span class="file-size" id="file-size-label">12 KB</span>
+                            </div>
+                            <button class="remove-file-btn" id="remove-file-btn" title="Remove file">×</button>
                         </div>
                     </div>
-                    <ul class="category-list" id="category-list">
-                        <li class="empty-list-msg">No categories loaded. Upload an Excel file or add one manually.</li>
-                    </ul>
                 </div>
-            </div>
 
-            <!-- Step 3: Launch Crawler -->
-            <div class="card glass-card launch-card">
-                <div class="card-header">
-                    <h2><span class="step-num">3</span> Crawler Settings</h2>
-                </div>
-                <div class="card-body launch-body">
-                    <div class="settings-group">
-                        <label class="switch-container">
-                            <input type="checkbox" id="headed-toggle">
-                            <span class="switch-slider"></span>
-                            <span class="switch-label">Show Browser Window (Headed Run)</span>
-                        </label>
+                <!-- Step 2: Manage Categories & Launch -->
+                <div class="card glass-card category-card">
+                    <div class="card-header">
+                        <h2><span class="step-num">2</span> Target Categories</h2>
+                        <span class="badge" id="category-count">0 Selected</span>
                     </div>
-                    <button class="btn btn-primary btn-block" id="start-crawl-btn" disabled>
-                        Launch Selected Tenders Extraction
-                    </button>
-                </div>
-            </div>
-        </section>
+                    <div class="card-body category-body">
+                        <!-- Relocated Launch Controls (Top of Category Box) -->
+                        <div class="launch-section-top">
+                            <button class="btn btn-primary btn-block" id="start-crawl-btn" disabled>
+                                ⚡ Launch Selected Tenders Extraction
+                            </button>
+                            <div class="settings-group-inline">
+                                <label class="switch-container">
+                                    <input type="checkbox" id="headed-toggle">
+                                    <span class="switch-slider"></span>
+                                    <span class="switch-label">Show Browser Window (Headed Run)</span>
+                                </label>
+                            </div>
+                        </div>
 
-        <!-- Live Execution Output Log -->
-        <section class="log-panel">
-            <div class="card glass-card terminal-card">
-                <div class="card-header terminal-header">
-                    <h2>Live Execution Console</h2>
-                    <div class="terminal-controls">
-                        <span class="term-btn dot-red"></span>
-                        <span class="term-btn dot-yellow"></span>
-                        <span class="term-btn dot-green"></span>
+                        <div class="category-manager">
+                            <input type="text" id="manual-category-input" placeholder="Type category name manually...">
+                            <button class="btn btn-secondary" id="add-category-btn">Add</button>
+                        </div>
+                        <div class="category-list-controls" id="list-controls-area">
+                            <input type="text" id="category-search-input" placeholder="Search loaded categories...">
+                            <div class="list-actions">
+                                <button class="link-btn" id="select-all-cats">Select All</button>
+                                <button class="link-btn" id="deselect-all-cats">Deselect All</button>
+                            </div>
+                        </div>
+                        <ul class="category-list" id="category-list">
+                            <li class="empty-list-msg">No categories loaded. Upload an Excel file or add one manually.</li>
+                        </ul>
                     </div>
                 </div>
-                <div class="card-body terminal-body" id="terminal-console">
-                    <div class="console-line system-msg">> GeM Bid Analyzer Console v1.0.0 initialized.</div>
-                    <div class="console-line system-msg">> Awaiting Excel upload or manual category input to begin...</div>
-                </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Parsed Results Display Panel -->
-        <section class="results-panel">
-            <div class="card glass-card results-card">
-                <div class="card-header results-header-grid">
-                    <div class="title-section">
-                        <h2>Parsed Tender Results</h2>
-                        <p id="results-summary">No active crawl results loaded.</p>
+            <!-- Live Execution Output Log -->
+            <section class="log-panel">
+                <div class="card glass-card terminal-card">
+                    <div class="card-header terminal-header">
+                        <h2>Live Execution Console</h2>
+                        <div class="terminal-controls">
+                            <span class="term-btn dot-red"></span>
+                            <span class="term-btn dot-yellow"></span>
+                            <span class="term-btn dot-green"></span>
+                        </div>
+                    </div>
+                    <div class="card-body terminal-body" id="terminal-console">
+                        <div class="console-line system-msg">> GeM Bid Analyzer Console v1.0.0 initialized.</div>
+                        <div class="console-line system-msg">> Awaiting Excel upload or manual category input to begin...</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Page 2: Parsed Tender Results -->
+        <div id="results-page" class="tab-content hide">
+            <!-- Parsed Results Display Panel -->
+            <section class="results-panel">
+                <div class="card glass-card results-card">
+                    <div class="card-header results-header-grid">
+                        <div class="title-section">
+                            <h2>Parsed Tender Results</h2>
+                            <p id="results-summary">No active crawl results loaded.</p>
+                        </div>
+                        
+                        <!-- Search & Filter Controls -->
+                        <div class="results-controls">
+                            <input type="text" id="table-search" placeholder="Search results..." disabled>
+                            
+                            <div class="filter-group">
+                                <button class="filter-btn active" data-filter="all" disabled>All</button>
+                                <button class="filter-btn" data-filter="startup-yes" disabled>Startup Relaxation</button>
+                                <button class="filter-btn" data-filter="mse-yes" disabled>MSE Relaxation</button>
+                            </div>
+                            
+                            <button class="btn btn-secondary" id="export-excel-btn" disabled>
+                                Export Excel
+                            </button>
+                            <button class="btn btn-accent" id="export-html-btn" disabled>
+                                Export HTML Report
+                            </button>
+                        </div>
                     </div>
                     
-                    <!-- Search & Filter Controls -->
-                    <div class="results-controls">
-                        <input type="text" id="table-search" placeholder="Search results..." disabled>
-                        
-                        <div class="filter-group">
-                            <button class="filter-btn active" data-filter="all" disabled>All</button>
-                            <button class="filter-btn" data-filter="startup-yes" disabled>Startup Relaxation</button>
-                            <button class="filter-btn" data-filter="mse-yes" disabled>MSE Relaxation</button>
+                    <div class="card-body results-body">
+                        <div class="table-container">
+                            <table class="results-table" id="results-table">
+                                <thead>
+                                    <tr>
+                                        <th>Bid Number</th>
+                                        <th>Target Category</th>
+                                        <th>Extracted Item Category</th>
+                                        <th>Location</th>
+                                        <th>Quantity Required</th>
+                                        <th>Startup Relaxation</th>
+                                        <th>MSE Relaxation</th>
+                                        <th>End Date</th>
+                                        <th>Ministry / Dept</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body">
+                                    <tr>
+                                        <td colspan="10" class="no-data-cell">No tenders crawled yet. Upload and execute a crawl to view data.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        
-                        <button class="btn btn-secondary" id="export-excel-btn" disabled>
-                            Export Excel
-                        </button>
-                        <button class="btn btn-accent" id="export-html-btn" disabled>
-                            Export HTML Report
-                        </button>
                     </div>
                 </div>
-                
-                <div class="card-body results-body">
-                    <div class="table-container">
-                        <table class="results-table" id="results-table">
-                            <thead>
-                                <tr>
-                                    <th>Bid Number</th>
-                                    <th>Target Category</th>
-                                    <th>Extracted Item Category</th>
-                                    <th>Startup Relaxation</th>
-                                    <th>MSE Relaxation</th>
-                                    <th>End Date</th>
-                                    <th>Ministry / Dept</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-body">
-                                <tr>
-                                    <td colspan="8" class="no-data-cell">No tenders crawled yet. Upload and execute a crawl to view data.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </section>
+            </section>
+        </div>
     </main>
 
     <footer class="app-footer">
