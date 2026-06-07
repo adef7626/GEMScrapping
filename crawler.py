@@ -10,6 +10,24 @@ class GeMTenderCrawler:
         self.headless = headless
         os.makedirs(self.downloads_dir, exist_ok=True)
 
+    def is_category_matching(self, target, extracted):
+        if not target or not extracted:
+            return False
+        # Normalize and tokenize
+        t_words = set(re.findall(r'[a-z0-9]+', target.lower()))
+        e_words = set(re.findall(r'[a-z0-9]+', extracted.lower()))
+        # Remove common stop words or single characters
+        stop_words = {'to', 'is', 'in', 'and', 'for', 'of', 'conforming', 'v1', 'v2', 'v3', 'v4', 'q1', 'q2', 'q3', 'q4'}
+        t_words = t_words - stop_words
+        e_words = e_words - stop_words
+        if not t_words or not e_words:
+            return False
+        # Check intersection
+        intersection = t_words.intersection(e_words)
+        # Check overlap fraction relative to the target words
+        overlap = len(intersection) / len(t_words)
+        return overlap >= 0.6
+
     def parse_gem_pdf(self, pdf_path):
         """Extracts key metadata from a downloaded GeM bid PDF document."""
         try:
@@ -186,8 +204,8 @@ class GeMTenderCrawler:
                 bid_urls = list(set(bid_urls))
                 
                 if not bid_urls:
-                    yield {"type": "log", "message": "No bids found via advance-search. Falling back to all-bids text search..."}
-                    use_fallback = True
+                    yield {"type": "log", "message": f"No active bids found on GeM for category '{category_name}'."}
+                    use_fallback = False
             except Exception as e:
                 yield {"type": "log", "message": f"Advanced search failed or timed out: {str(e)}. Falling back to all-bids text search..."}
                 use_fallback = True
@@ -239,6 +257,15 @@ class GeMTenderCrawler:
                         # Parse PDF
                         data = self.parse_gem_pdf(pdf_path)
                         if data["success"]:
+                            extracted_cat = data.get("item_category", "Unknown")
+                            if not self.is_category_matching(category_name, extracted_cat):
+                                yield {"type": "log", "message": f"Discarded mismatched bid {doc_id} (Extracted: '{extracted_cat}' for search target: '{category_name}')"}
+                                try:
+                                    os.remove(pdf_path)
+                                except:
+                                    pass
+                                continue
+
                             data["url"] = url
                             data["search_category"] = category_name
                             
