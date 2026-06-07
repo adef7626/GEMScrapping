@@ -32,9 +32,30 @@ class GeMTenderCrawler:
             # Item Category
             item_category = "Unknown"
             for i, line in enumerate(lines):
-                if "item category" in line.lower() or "itemcategory" in line.lower():
-                    if i + 1 < len(lines):
-                        item_category = lines[i+1]
+                # Match "Item Category" or "ItemCategory", optionally prefixed by slash or whitespace, and capture same-line value
+                match = re.search(r'(?:/)?\s*(?:item\s*category|itemcategory)\s*(.*)', line, re.IGNORECASE)
+                if match:
+                    val = match.group(1).strip()
+                    # Remove leading/trailing colons, slashes, hyphens, spaces
+                    val = re.sub(r'^[:\-\s/]+', '', val).strip()
+                    if val:
+                        # Same-line extraction (RA format)
+                        item_category = val
+                        # Check if next line is a continuation (doesn't start with standard sections)
+                        if i + 1 < len(lines):
+                            next_line = lines[i+1].strip()
+                            if not re.search(r'^(?:auto\s*extension|gemarpts|office\s*name|total\s*quantity|bid\s*details|spl\s*exemption|pre\s*bid|t&c|average|annual|oem|document|compliance)', next_line, re.IGNORECASE):
+                                item_category += " " + next_line
+                    else:
+                        # Next-line extraction (Standard Bid format)
+                        if i + 1 < len(lines):
+                            item_category = lines[i+1].strip()
+                            # If standard bid has multi-line category, check if next line after that should be appended
+                            if i + 2 < len(lines):
+                                next_line = lines[i+2].strip()
+                                if not re.search(r'^(?:gemarpts|office\s*name|total\s*quantity|bid\s*details|startup|mse|evaluation|document|spl\s*exemption|pre\s*bid|t&c|average|annual|oem|compliance|dated|bid\s*number|organisation|buyer|ministry|department|division)', next_line, re.IGNORECASE):
+                                    if not re.search(r'^(?:GeMARPTS|मूल|एमएसएमई|ेणी|म\)|के)', next_line, re.IGNORECASE):
+                                        item_category += " " + next_line
                     break
                     
             # Startup Relaxation
@@ -137,8 +158,7 @@ class GeMTenderCrawler:
                         break
                 
                 if not selected:
-                    yield {"type": "log", "message": f"Category '{category_name}' not found in dropdown list. Trying to press Enter..."}
-                    await page.press("input.select2-search__field", "Enter")
+                    raise Exception(f"Category '{category_name}' not found in Select2 dropdown list")
                 
                 await page.wait_for_timeout(2000)
                 

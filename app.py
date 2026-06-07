@@ -155,6 +155,7 @@ async def export_html_results():
             --text-muted: #9ca3af;
             --success: #00ff87;
             --success-bg: rgba(0, 255, 135, 0.12);
+            --warning: #ffb703;
             --radius: 12px;
         }}
         body {{
@@ -241,6 +242,21 @@ async def export_html_results():
             color: var(--text-muted);
             border: 1px solid rgba(255, 255, 255, 0.06);
         }}
+        .mismatch-badge {{
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 6px;
+            background-color: rgba(255, 183, 3, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(255, 183, 3, 0.25);
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-left: 8px;
+            vertical-align: middle;
+        }}
         a {{
             color: var(--accent);
             text-decoration: none;
@@ -287,6 +303,17 @@ async def export_html_results():
     <script>
         const data = {json.dumps(crawled_results)};
         
+        function isCategoryMatching(target, extracted) {{
+            if (!target || !extracted) return false;
+            const clean = (s) => s.toLowerCase()
+                .replace(/\(q\d+\)/g, "")
+                .replace(/[^a-z0-9]/g, "")
+                .trim();
+            const t = clean(target);
+            const e = clean(extracted);
+            return t.includes(e) || e.includes(t);
+        }}
+        
         function renderTable(list) {{
             const tbody = document.getElementById("tbody");
             tbody.innerHTML = "";
@@ -302,10 +329,13 @@ async def export_html_results():
                 const startupClass = b.startup_relaxation.toLowerCase() === "yes" ? "yes" : "no";
                 const mseClass = b.mse_relaxation.toLowerCase() === "yes" ? "yes" : "no";
                 
+                const isMatch = isCategoryMatching(b.search_category, b.item_category);
+                const warningBadge = isMatch ? "" : `<span class="mismatch-badge" title="Extracted category does not match target category. Please verify manually.">⚠️ Mismatch</span>`;
+                
                 tr.innerHTML = `
                     <td style="font-weight: 600; color: var(--accent); font-family: monospace;">\${b.bid_number}</td>
                     <td style="color: var(--text-muted); font-size: 11px;">\${b.search_category}</td>
-                    <td>\${b.item_category}</td>
+                    <td>\${b.item_category}\${warningBadge}</td>
                     <td><span class="status-pill \${startupClass}">\${b.startup_relaxation}</span></td>
                     <td><span class="status-pill \${mseClass}">\${b.mse_relaxation}</span></td>
                     <td style="white-space: nowrap;">\${b.end_date}</td>

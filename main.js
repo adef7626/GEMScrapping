@@ -331,6 +331,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- table rendering and search filters ---
     
+    function isCategoryMatching(target, extracted) {
+        if (!target || !extracted) return false;
+        const clean = (s) => s.toLowerCase()
+            .replace(/\(q\d+\)/g, "") // remove (Q1), (Q2) etc.
+            .replace(/[^a-z0-9]/g, "") // remove all non-alphanumeric
+            .trim();
+        const t = clean(target);
+        const e = clean(extracted);
+        return t.includes(e) || e.includes(t);
+    }
+    
     function renderResultsTable() {
         tableBody.innerHTML = "";
         
@@ -352,10 +363,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const startupClass = bid.startup_relaxation.toLowerCase() === "yes" ? "yes" : "no";
             const mseClass = bid.mse_relaxation.toLowerCase() === "yes" ? "yes" : "no";
             
+            const isMatch = isCategoryMatching(bid.search_category, bid.item_category);
+            const warningBadge = isMatch ? "" : `<span class="mismatch-badge" title="Extracted category does not match target category. Please verify manually.">⚠️ Mismatch</span>`;
+            
             tr.innerHTML = `
                 <td style="font-weight: 600; color: var(--accent);">${bid.bid_number}</td>
                 <td style="color: var(--text-muted); font-size: 11px;" title="${bid.search_category}">${bid.search_category}</td>
-                <td>${bid.item_category}</td>
+                <td>${bid.item_category}${warningBadge}</td>
                 <td><span class="status-pill ${startupClass}">${bid.startup_relaxation}</span></td>
                 <td><span class="status-pill ${mseClass}">${bid.mse_relaxation}</span></td>
                 <td style="white-space: nowrap;">${bid.end_date}</td>
@@ -382,10 +396,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const startupClass = bid.startup_relaxation.toLowerCase() === "yes" ? "yes" : "no";
         const mseClass = bid.mse_relaxation.toLowerCase() === "yes" ? "yes" : "no";
         
+        const isMatch = isCategoryMatching(bid.search_category, bid.item_category);
+        const warningBadge = isMatch ? "" : `<span class="mismatch-badge" title="Extracted category does not match target category. Please verify manually.">⚠️ Mismatch</span>`;
+        
         tr.innerHTML = `
             <td style="font-weight: 600; color: var(--accent);">${bid.bid_number}</td>
             <td style="color: var(--text-muted); font-size: 11px;" title="${bid.search_category}">${bid.search_category}</td>
-            <td>${bid.item_category}</td>
+            <td>${bid.item_category}${warningBadge}</td>
             <td><span class="status-pill ${startupClass}">${bid.startup_relaxation}</span></td>
             <td><span class="status-pill ${mseClass}">${bid.mse_relaxation}</span></td>
             <td style="white-space: nowrap;">${bid.end_date}</td>
