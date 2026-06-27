@@ -1,535 +1,192 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Adrenaline Forge – Workout PWA</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <meta name="theme-color" content="#03040c" />
-
-  <!-- PWA Capabilities -->
-  <link rel="manifest" href="manifest.json" />
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Adrenaline Forge">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-
-  <!-- External Assets & Typography -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeM Bid Analyzer & Intelligence Dashboard</title>
+    <!-- Google Fonts: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="app">
-    <!-- STEP 1: Choose Battlefield View -->
-    <main id="view-muscles" class="view active">
-      <!-- Header App Title Section -->
-      <header class="card" style="margin-bottom:8px;padding:16px;text-align:center;position:relative;">
-        <h1 id="headlineText" class="cyber-header-glow" style="margin-right:45px;">Adrenaline Forge: All‑Out Mode</h1>
-        <button id="btnOpenSettings" class="settings-gear-btn" title="Open Settings" style="position:absolute;top:14px;right:14px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:var(--text-main);font-size:1.15rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s ease;box-shadow:0 4px 12px rgba(0,0,0,0.3);outline:none;">⚙️</button>
-      </header>
-
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-            Choose Your Battlefield
-          </div>
-          <span class="chip">Step 1</span>
+    <div class="glow-bg"></div>
+    
+    <header class="app-header">
+        <div class="container header-container">
+            <div class="logo-area">
+                <span class="logo-icon">⚡</span>
+                <div class="logo-text">
+                    <h1>GeM Bid Intelligence</h1>
+                    <p>Automated Tender Extraction & Relaxation Analyzer</p>
+                </div>
+            </div>
+            <div class="header-status">
+                <span class="status-indicator idle" id="global-status-dot"></span>
+                <span class="status-label" id="global-status-text">System Ready</span>
+            </div>
         </div>
-        
-        <div class="top-quick-actions" style="align-items: center; justify-content: flex-end;">
-          <!-- Adaptive Training Mode -->
-          <select id="modeSelect" class="btn btn-secondary btn-sm btn-rect mode-select" style="margin:0;min-height:32px;height:32px;font-size:0.78rem;width:auto;min-width:115px;padding:4px 28px 4px 10px;background-position:calc(100% - 8px) center;background-size:12px;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;">
-            <option value="easy" style="background:#0a0c22;color:var(--text-main);">Easy Mode</option>
-            <option value="normal" selected style="background:#0a0c22;color:var(--text-main);">Normal Mode</option>
-            <option value="push" style="background:#0a0c22;color:var(--text-main);">Push Day</option>
-          </select>
-          <button id="btnDatewiseHistory" class="btn btn-secondary btn-sm btn-rect" style="margin:0;min-height:32px;height:32px;font-size:0.78rem;">
-            📅 Date-wise
-          </button>
-          <button id="btnBodyweight" class="btn btn-secondary btn-sm btn-rect" style="margin:0;min-height:32px;height:32px;font-size:0.78rem;">
-            ⚖️ Weight
-          </button>
+    </header>
+
+    <!-- 2-Button Tab Navigation Platform -->
+    <nav class="navigation-tabs">
+        <button class="tab-btn active" id="tab-btn-setup">
+            ⚙️ Tender Setup & Execution
+        </button>
+        <button class="tab-btn" id="tab-btn-results">
+            📊 Parsed Tender Results
+        </button>
+    </nav>
+
+    <main class="container main-content">
+        <!-- Page 1: Setup & Execution -->
+        <div id="setup-page" class="tab-content active">
+            <!-- Configuration and Execution Panel -->
+            <section class="control-panel">
+                <!-- Step 1: Upload Excel -->
+                <div class="card glass-card upload-card">
+                    <div class="card-header">
+                        <h2><span class="step-num">1</span> Upload Category Excel</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="drag-drop-zone" id="drop-zone">
+                            <span class="upload-icon">📄</span>
+                            <p class="drag-text">Drag & drop your Excel file here or <span class="browse-link">browse</span></p>
+                            <p class="file-limits">Supports .xlsx and .xls formats</p>
+                            <input type="file" id="file-input" accept=".xlsx, .xls" hidden>
+                        </div>
+                        <div class="selected-file-area hide" id="file-details">
+                            <span class="file-icon">📈</span>
+                            <div class="file-info">
+                                <span class="file-name" id="file-name-label">categories.xlsx</span>
+                                <span class="file-size" id="file-size-label">12 KB</span>
+                            </div>
+                            <button class="remove-file-btn" id="remove-file-btn" title="Remove file">×</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Manage Categories & Launch -->
+                <div class="card glass-card category-card">
+                    <div class="card-header">
+                        <h2><span class="step-num">2</span> Target Categories</h2>
+                        <span class="badge" id="category-count">0 Selected</span>
+                    </div>
+                    <div class="card-body category-body">
+                        <!-- Relocated Launch Controls (Top of Category Box) -->
+                        <div class="launch-section-top">
+                            <button class="btn btn-primary btn-block" id="start-crawl-btn" disabled>
+                                ⚡ Launch Selected Tenders Extraction
+                            </button>
+                            <div class="settings-group-inline">
+                                <label class="switch-container">
+                                    <input type="checkbox" id="headed-toggle">
+                                    <span class="switch-slider"></span>
+                                    <span class="switch-label">Show Browser Window (Headed Run)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="category-manager">
+                            <input type="text" id="manual-category-input" placeholder="Type category name manually...">
+                            <button class="btn btn-secondary" id="add-category-btn">Add</button>
+                        </div>
+                        <div class="category-list-controls" id="list-controls-area">
+                            <input type="text" id="category-search-input" placeholder="Search loaded categories...">
+                            <div class="list-actions">
+                                <button class="link-btn" id="select-all-cats">Select All</button>
+                                <button class="link-btn" id="deselect-all-cats">Deselect All</button>
+                            </div>
+                        </div>
+                        <ul class="category-list" id="category-list">
+                            <li class="empty-list-msg">No categories loaded. Upload an Excel file or add one manually.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Live Execution Output Log -->
+            <section class="log-panel">
+                <div class="card glass-card terminal-card">
+                    <div class="card-header terminal-header">
+                        <h2>Live Execution Console</h2>
+                        <div class="terminal-controls">
+                            <span class="term-btn dot-red"></span>
+                            <span class="term-btn dot-yellow"></span>
+                            <span class="term-btn dot-green"></span>
+                        </div>
+                    </div>
+                    <div class="card-body terminal-body" id="terminal-console">
+                        <div class="console-line system-msg">> GeM Bid Analyzer Console v1.0.0 initialized.</div>
+                        <div class="console-line system-msg">> Awaiting Excel upload or manual category input to begin...</div>
+                    </div>
+                </div>
+            </section>
         </div>
 
-        <p class="small-text" style="color:var(--text-muted);font-size:0.8rem;line-height:1.5;margin-bottom:12px;">
-          Select a muscle group to attack. The last attack date is shown on each button to maintain target progression.
-        </p>
-
-        <!-- Muscle Battlefield Tabs -->
-        <div class="muscle-tabs" id="muscleTabs"></div>
-      </div>
-
-      <!-- Conquest Streak & Achievements Card -->
-      <div class="card" style="margin-top:12px;">
-        <div class="card-header" style="margin-bottom:12px;padding-bottom:6px;">
-          <div class="card-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-            Conquest Achievements
-          </div>
-          <span class="chip" style="background:rgba(255, 140, 26, 0.1);color:var(--accent);" id="conquestRank">Rookie</span>
+        <!-- Page 2: Parsed Tender Results -->
+        <div id="results-page" class="tab-content hide">
+            <!-- Parsed Results Display Panel -->
+            <section class="results-panel">
+                <div class="card glass-card results-card">
+                    <div class="card-header results-header-grid">
+                        <div class="title-section">
+                            <h2>Parsed Tender Results</h2>
+                            <p id="results-summary">No active crawl results loaded.</p>
+                        </div>
+                        
+                        <!-- Search & Filter Controls -->
+                        <div class="results-controls">
+                            <input type="text" id="table-search" placeholder="Search results..." disabled>
+                            
+                            <div class="filter-group">
+                                <button class="filter-btn active" data-filter="all" disabled>All</button>
+                                <button class="filter-btn" data-filter="startup-yes" disabled>Startup Relaxation</button>
+                                <button class="filter-btn" data-filter="mse-yes" disabled>MSE Relaxation</button>
+                            </div>
+                            
+                            <button class="btn btn-secondary" id="export-excel-btn" disabled>
+                                Export Excel
+                            </button>
+                            <button class="btn btn-accent" id="export-html-btn" disabled>
+                                Export HTML Report
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body results-body">
+                        <div class="table-container">
+                            <table class="results-table" id="results-table">
+                                <thead>
+                                    <tr>
+                                        <th>Bid Number</th>
+                                        <th>Target Category</th>
+                                        <th>Extracted Item Category</th>
+                                        <th>Location</th>
+                                        <th>Quantity Required</th>
+                                        <th>Startup Relaxation</th>
+                                        <th>MSE Relaxation</th>
+                                        <th>End Date</th>
+                                        <th>Ministry / Dept</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body">
+                                    <tr>
+                                        <td colspan="10" class="no-data-cell">No tenders crawled yet. Upload and execute a crawl to view data.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
-        <div class="stats-row" style="grid-template-columns: repeat(4, 1fr);gap:8px;">
-          <div class="stat" id="badgeStreak" style="padding:10px 4px;opacity:0.25;transition:all 0.4s ease;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-            <div style="font-size:1.6rem;margin-bottom:4px;">⚡</div>
-            <div class="stat-label" style="font-size:0.58rem;line-height:1.2;font-weight:700;">Conquest Streak</div>
-          </div>
-          <div class="stat" id="badgeTon" style="padding:10px 4px;opacity:0.25;transition:all 0.4s ease;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-            <div style="font-size:1.6rem;margin-bottom:4px;">🏋️</div>
-            <div class="stat-label" style="font-size:0.58rem;line-height:1.2;font-weight:700;">Ton-Club</div>
-          </div>
-          <div class="stat" id="badgeLung" style="padding:10px 4px;opacity:0.25;transition:all 0.4s ease;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-            <div style="font-size:1.6rem;margin-bottom:4px;">🏃</div>
-            <div class="stat-label" style="font-size:0.58rem;line-height:1.2;font-weight:700;">Iron-Lung</div>
-          </div>
-          <div class="stat" id="badgeWeigh" style="padding:10px 4px;opacity:0.25;transition:all 0.4s ease;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-            <div style="font-size:1.6rem;margin-bottom:4px;">⚖️</div>
-            <div class="stat-label" style="font-size:0.58rem;line-height:1.2;font-weight:700;">Scale-Master</div>
-          </div>
-        </div>
-      </div>
     </main>
 
-    <!-- STEP 2: Exercise Recap View -->
-    <section id="view-overview" class="view">
-      <div class="top-bar">
-        <button id="btnBackToMuscles" class="btn btn-secondary btn-sm" title="Back to Battlefields">←</button>
-        <span id="overviewMuscleLabel"></span>
-      </div>
-      
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--cyan);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-            Exercise Recap
-          </div>
-          <span class="chip">Step 2</span>
-        </div>
-        
-        <p class="small-text" style="color:var(--text-muted);font-size:0.8rem;line-height:1.5;margin-bottom:14px;">
-          Review historical sets logged for this muscle group. Tap the dumbbell log icon to enter the logging arena directly.
-        </p>
+    <footer class="app-footer">
+        <p>&copy; 2026 GeM Bid Intelligence Platform. Developed Locally.</p>
+    </footer>
 
-        <button id="btnSkipToLogging" class="btn btn-primary" style="margin-bottom:18px;width:100%;">
-          Skip Recap → Enter Workout Arena
-        </button>
-
-        <!-- Dynamic List of Logged Exercises -->
-        <div id="overviewList" style="display:flex;flex-direction:column;gap:12px;"></div>
-      </div>
-    </section>
-
-    <!-- STEP 3: Active Workout Logger View -->
-    <section id="view-workout" class="view">
-      <div class="top-bar">
-        <button id="btnBackToOverview" class="btn btn-secondary btn-sm" title="Back to Recap">←</button>
-        <span id="currentMuscleLabel"></span>
-        <button id="btnFocusMode" class="btn btn-secondary btn-sm" style="margin-left:auto;">🎯 Focus: Off</button>
-      </div>
-
-      <!-- Exercise & Session Configuration -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
-            Exercise Arena
-          </div>
-          <span class="chip">Step 3</span>
-        </div>
-
-        <div class="row">
-          <div>
-            <label for="exerciseSelect">Select Target Exercise</label>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-              <select id="exerciseSelect" style="margin-bottom:0;flex:1;min-width:0;"></select>
-              <input id="editExerciseInput" type="text" placeholder="Edit exercise name" style="margin-bottom:0;flex:1;min-width:0;display:none;">
-              <button id="btnRenameExercise" class="btn btn-secondary btn-sm icon-btn" title="Rename this exercise" style="display:none;">✏️</button>
-              <input id="newExerciseInput" type="text" placeholder="Custom exercise name" style="max-width:180px;margin-bottom:0;display:none;">
-              <button id="btnConfirmAddExercise" class="btn btn-success btn-sm icon-btn" title="Confirm custom exercise" style="display:none;">✔</button>
-              <button id="btnAddExercise" class="btn btn-secondary btn-sm icon-btn" title="Add custom exercise">+</button>
-              <button id="btnDeleteExercise" class="btn btn-danger btn-sm icon-btn" title="Delete selected custom exercise">🗑</button>
-            </div>
-          </div>
-          
-          <div>
-            <label>Last Logged Session</label>
-            <div id="lastTrainedExercise" style="font-weight:700;font-size:0.9rem;color:var(--cyan);">Never trained yet.</div>
-            <div id="lastSessionSummary" style="margin-top:4px;color:var(--text-muted);font-size:0.76rem;line-height:1.3;"></div>
-            <div id="suggestionSummary" style="margin-top:6px;color:#ffb663;font-size:0.76rem;font-weight:600;line-height:1.3;"></div>
-          </div>
-        </div>
-
-        <div class="row" style="margin-top:8px;">
-          <div>
-            <label>Training Date</label>
-            <input type="date" id="sessionDate" />
-          </div>
-          <div>
-            <label>Target Class</label>
-            <select id="exerciseTypeSelect">
-              <option value="weighted">Weighted (Kg + Reps)</option>
-              <option value="bodyweight">Bodyweight (Reps Only)</option>
-              <option value="cardio">Cardio (Distance + Time)</option>
-            </select>
-            <div class="type-badge" id="exerciseTypeHint">Adjusts logging metrics automatically.</div>
-          </div>
-          <div id="current1RMPanel">
-            <label>Est. 1RM (Best Set)</label>
-            <div id="current1RM" style="min-height:var(--control-height);display:flex;align-items:center;padding:10px 16px;border-radius:var(--radius-md);border:1px solid rgba(255,255,255,0.08);background:rgba(4,5,15,0.85);font-weight:700;color:var(--success);">-</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Set Entry Cards -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--cyan);"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-            Active Set Logger
-          </div>
-          <span class="chip">Sets Entry</span>
-        </div>
-
-        <div class="row" style="margin-bottom:8px;gap:8px;">
-          <button id="btnCopyLastSets" class="btn btn-secondary btn-sm" style="flex:1;">
-            📋 Copy Previous Sets
-          </button>
-        </div>
-
-        <!-- Dynamic Sets Rows -->
-        <div class="sets-list" id="setsList"></div>
-
-        <div class="set-add-row">
-          <div class="badge-info" id="setsHelperText">Pre-filled configurations optimized for you.</div>
-          <button id="btnAddSet" class="btn btn-cyan btn-sm btn-rect" style="min-height:34px;">➕ Append Set</button>
-        </div>
-
-        <div id="saveError" class="badge-error" style="display:none;"></div>
-
-        <button id="btnSaveWorkout" class="btn btn-primary" style="margin-top:16px;width:100%;min-height:48px;border-radius:14px;font-size:1rem;">
-          🚀 Save Active Workout Log
-        </button>
-      </div>
-
-      <!-- Stats Recap Card -->
-      <div id="cardHistory" class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            History & Analytics
-          </div>
-          <span class="chip">Logs</span>
-        </div>
-
-        <div class="row" style="align-items:stretch;">
-          <div style="flex:1.4;min-width:0;display:flex;flex-direction:column;">
-            <label>Past Sessions (Recent First)</label>
-            <div class="history-list" id="historyList"></div>
-          </div>
-          
-          <div style="flex:1;min-width:0;display:flex;flex-direction:column;">
-            <label>Progression Stats</label>
-            <div class="stats-row">
-              <div class="stat">
-                <div class="stat-label">Last Date</div>
-                <div class="stat-value" id="statLastTrained" style="font-size:0.8rem;">-</div>
-              </div>
-              <div class="stat">
-                <div class="stat-label">Max 1RM</div>
-                <div class="stat-value success" id="statBest1RM">-</div>
-              </div>
-              <div class="stat">
-                <div class="stat-label" id="volumeStatLabel">Volume</div>
-                <div class="stat-value info" id="statTotalVolume">0</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Progression Chart Card -->
-      <div id="cardChart" class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success);"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-            Progressive Overload Chart
-          </div>
-          <span class="chip">Trend</span>
-        </div>
-        <p class="small-text" style="color:var(--text-muted);font-size:0.75rem;margin-bottom:8px;" id="chartSubtitle">
-          Tracking weight spikes and calculated Epley 1RM over successful battle sessions.
-        </p>
-        <div class="chart-wrapper">
-          <canvas id="progressChart"></canvas>
-        </div>
-      </div>
-
-      <div style="margin-top:16px;margin-bottom:8px;">
-        <button id="btnWorkoutComplete" class="btn btn-success" style="width:100%;min-height:46px;border-radius:12px;font-size:0.95rem;box-shadow: 0 8px 24px rgba(0, 230, 118, 0.25);">
-          ✅ Complete Battlefield Target
-        </button>
-      </div>
-    </section>
-
-    <!-- FULL PAGE: Date-wise History View -->
-    <section id="view-date-history" class="view">
-      <div class="top-bar">
-        <button id="btnBackFromDateHistory" class="btn btn-secondary btn-sm">←</button>
-        <span>Full-page Date-wise Analytics</span>
-      </div>
-      
-      <div class="card date-history-card">
-        <div class="card-header">
-          <div class="card-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-            Calendar Workout History
-          </div>
-          <span class="chip">Calendar</span>
-        </div>
-
-        <div class="date-history-controls">
-          <!-- Inline Interactive Calendar -->
-          <div id="inlineCalendar" class="custom-calendar-container" style="margin-bottom:12px;background:rgba(4, 5, 15, 0.6);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius-md);padding:12px;box-sizing:border-box;"></div>
-          
-          <div class="date-history-input-group" style="display:none;">
-            <label for="dateHistoryInput">Select Date</label>
-            <input type="date" id="dateHistoryInput" />
-          </div>
-        </div>
-
-        <div id="dateHistorySummary" class="date-history-summary">
-          Choose a date in the calendar selector to trace historical workout metrics.
-        </div>
-
-        <!-- Render List of logs -->
-        <div id="dateHistoryList" class="date-history-list"></div>
-      </div>
-    </section>
-
-    <!-- FULL PAGE: Body Weight Tracker View -->
-    <section id="view-bodyweight" class="view">
-      <div class="top-bar">
-        <button id="btnBackFromBodyweight" class="btn btn-secondary btn-sm" title="Back">←</button>
-        <span>Body Weight Analytics</span>
-      </div>
-
-      <!-- Add entry weights -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--cyan);"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
-            Track Body Weight
-          </div>
-          <span class="chip">Logger</span>
-        </div>
-
-        <div class="row">
-          <div>
-            <label for="bodyweightDate">Weigh-in Date</label>
-            <input type="date" id="bodyweightDate" />
-          </div>
-          <div>
-            <label for="bodyweightInput">Weight (kg)</label>
-            <input type="number" id="bodyweightInput" min="0" step="0.1" placeholder="Enter weight in kg" />
-          </div>
-        </div>
-
-        <button id="btnSaveBodyweight" class="btn btn-primary" style="width:100%;margin-top:8px;">
-          ⚖️ Save Weigh-In Log
-        </button>
-        <div id="bodyweightError" class="badge-error" style="display:none;"></div>
-      </div>
-
-      <!-- Weight trends analysis panel -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success);"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
-            Weight Progression Insights
-          </div>
-          <span class="chip">Trends</span>
-        </div>
-
-        <div class="stats-row">
-          <div class="stat">
-            <div class="stat-label">Latest Log</div>
-            <div class="stat-value success" id="bwLatest">-</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label">Previous Log</div>
-            <div class="stat-value info" id="bwPrevious">-</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label">Session Delta</div>
-            <div class="stat-value" id="bwChange">-</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label">7-Entry Average</div>
-            <div class="stat-value" id="bwAverage" style="color:var(--accent);">-</div>
-          </div>
-        </div>
-
-        <!-- Render list of logs -->
-        <div id="bodyweightHistoryList" class="bodyweight-history-list" style="margin-top:16px;"></div>
-      </div>
-    </section>
-
-    <!-- FULL PAGE: Factory Reset Danger View -->
-    <section id="view-reset" class="view">
-      <div class="card" style="border-color:rgba(255, 71, 71, 0.3);box-shadow: 0 20px 40px rgba(255, 71, 71, 0.1);">
-        <div class="card-header" style="border-bottom-color:rgba(255,71,71,0.15);">
-          <div class="card-title" style="color:#ff7777;">
-            ⚠️ Irreversible Action: Factory Reset
-          </div>
-          <span class="chip" style="background:rgba(255,71,71,0.1);color:#ff7777;border-color:rgba(255,71,71,0.25);">Danger</span>
-        </div>
-
-        <p class="small-text" style="color:#ffd5d5;font-size:0.82rem;line-height:1.6;margin-bottom:14px;">
-          You are about to permanently delete all logged user data. This action is irreversible and will clean:
-        </p>
-        <ul class="small-text" style="color:#ffbaba;font-size:0.78rem;line-height:1.6;margin-left:20px;margin-bottom:16px;">
-          <li>All historical exercise sets and dates.</li>
-          <li>All custom exercises built.</li>
-          <li>All bodyweight history logs.</li>
-          <li>App custom headline configurations.</li>
-        </ul>
-        <p class="small-text" style="color:var(--text-muted);font-size:0.78rem;line-height:1.6;margin-bottom:20px;">
-          Make sure to export your back-ups beforehand if you want to recover logs at a later time.
-        </p>
-
-        <div class="row">
-          <div>
-            <button id="btnConfirmReset" class="btn btn-danger" style="width:100%;">
-              💣 Yes, Erase Everything
-            </button>
-          </div>
-          <div>
-            <button id="btnCancelReset" class="btn btn-secondary" style="width:100%;">
-              Cancel, Return Home
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FULL PAGE: Exercise Manager View -->
-    <section id="view-exercise-manager" class="view">
-      <div class="top-bar">
-        <button id="btnBackFromExManager" class="btn btn-secondary btn-sm">←</button>
-        <span>Exercise Manager</span>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-            Exercise Library
-          </div>
-          <span class="chip">All Muscles</span>
-        </div>
-
-        <div style="margin-bottom:12px;">
-          <input type="text" id="exManagerSearch" placeholder="🔍 Search exercises..." style="margin-bottom:0;" />
-        </div>
-
-        <div id="exManagerList" class="ex-manager-list"></div>
-      </div>
-    </section>
-
-    <!-- Glassmorphic Settings Modal Popup -->
-    <div id="settingsModal" class="modal-overlay">
-      <div class="modal-card">
-        <!-- iOS Style Drag Handle -->
-        <div class="modal-handle"></div>
-
-        <div class="modal-header">
-          <div class="modal-title">⚙️ Cyber Deck Settings</div>
-          <button id="btnCloseSettings" class="modal-close-btn">&times;</button>
-        </div>
-        
-        <!-- Setting 1: Edit Title -->
-        <div class="setting-item">
-          <label>Edit Deck Title</label>
-          <div class="setting-inline-group">
-            <input type="text" id="headlineInput" placeholder="Deck Title" />
-            <button id="btnSaveHeadline" class="btn btn-primary btn-sm btn-rect">Save</button>
-          </div>
-        </div>
-
-        <!-- Setting 2: Skin Select & Beat Toggle -->
-        <div class="setting-row">
-          <div class="setting-col-skin">
-            <label for="themeSelect">Skin Select</label>
-            <select id="themeSelect">
-              <option value="orange">Cyber Orange</option>
-              <option value="acid">Neon Acid</option>
-              <option value="synthwave">Synthwave Sunset</option>
-              <option value="stealth">Deep Stealth</option>
-            </select>
-          </div>
-          <div class="setting-col-beats">
-            <label>Synth Beats</label>
-            <div class="toggle-switch-wrapper">
-              <input type="checkbox" id="chkSynthwave" style="display:none;" />
-              <label for="chkSynthwave" class="ios-switch-label">
-                <span class="ios-switch-inner"></span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <!-- Setting 3: Import & Export Backups -->
-        <div class="setting-item">
-          <label>Backups Controller</label>
-          <div class="setting-inline-group">
-            <button id="btnExportData" class="btn btn-secondary btn-sm btn-rect" style="flex:1;">⬇️ Export Backup</button>
-            <button id="btnImportData" class="btn btn-secondary btn-sm btn-rect" style="flex:1;">⬆️ Import Backup</button>
-            <input type="file" id="importFileInput" accept="application/json" style="display:none;" />
-          </div>
-        </div>
-
-        <!-- Setting: Weight Unit Switch -->
-        <div class="setting-item">
-          <label for="unitSelect">Weight Unit (Global)</label>
-          <select id="unitSelect" class="unit-select-native">
-            <option value="kg">Metric (kg)</option>
-            <option value="lbs">Imperial (lbs)</option>
-          </select>
-        </div>
-
-        <!-- Setting: Exercise Library -->
-        <div class="setting-item">
-          <label>Exercise Library</label>
-          <button id="btnOpenExManager" class="btn btn-secondary btn-sm btn-rect" style="width:100%;">📋 Manage Exercises</button>
-        </div>
-
-        <!-- Setting 4: Force Reload Cache & Factory Reset -->
-        <div class="setting-item danger-row">
-          <button id="btnForceReload" class="btn btn-cyan btn-sm btn-rect" style="flex:1;">🔄 Force Update Shell</button>
-          <button id="btnGoToReset" class="btn btn-danger btn-sm btn-rect" style="flex:1;">🧨 Factory Reset</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Floating iOS Install PWA Banner -->
-    <div id="iosInstallBanner" class="ios-install-banner" style="display:none;">
-      <div class="ios-install-banner-content">
-        <button id="btnCloseInstallBanner" class="ios-install-close-btn">&times;</button>
-        <div class="ios-install-title">📲 Install Adrenaline Forge</div>
-        <p class="ios-install-text">
-          Add this application to your Home Screen to unlock a full-screen, offline-enabled native experience:
-        </p>
-        <ol class="ios-install-steps">
-          <li>Tap the <strong>Share</strong> button <span class="ios-share-icon">⎋</span> at the bottom of Safari.</li>
-          <li>Scroll down and select <strong>Add to Home Screen</strong> <span class="ios-plus-icon">⊕</span>.</li>
-        </ol>
-      </div>
-    </div>
-  </div>
-
-  <script src="app.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
