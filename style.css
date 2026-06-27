@@ -1,0 +1,3517 @@
+/* ==========================================================================
+   DHRUVISH ADRENALINE - PREMIUM DESIGN SYSTEM
+   ========================================================================== */
+
+:root {
+  /* Color Palette - space minimalist & accent tones */
+  --bg: #090a11;
+  --bg-gradient: linear-gradient(180deg, #090a11 0%, #05060a 100%);
+  --card-bg: #151622;
+  --card-glow: transparent;
+  
+  --accent: #ff8c1a;
+  --accent-glow: rgba(255, 140, 26, 0.15);
+  --accent-deep: #ff6600;
+  --accent-neon: #ffa64d;
+  
+  --cyan: #00e5ff;
+  --cyan-glow: rgba(0, 229, 255, 0.15);
+  --cyan-deep: #0099b8;
+  
+  --text-main: #f5f6fa;
+  --text-muted: #8e95be;
+  --text-highlight: #ffffff;
+  
+  --border-soft: rgba(255, 255, 255, 0.05);
+  --border-glow: rgba(255, 140, 26, 0.1);
+  --border-cyan: rgba(0, 229, 255, 0.1);
+  
+  --danger: #ff4747;
+  --danger-glow: rgba(255, 71, 71, 0.15);
+  --success: #00e676;
+  --success-glow: rgba(0, 230, 118, 0.15);
+  --info: #2979ff;
+  
+  /* Layout Metrics */
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 8px;
+  --control-height: 48px;
+  --control-height-sm: 38px;
+  --shadow-premium: 0 10px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  --shadow-neon: none;
+  --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, 'Inter', sans-serif;
+}
+
+/* Reset & Base Elements */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family);
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  background-color: var(--bg);
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  min-height: 100%;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  color: var(--text-main);
+  display: flex;
+  justify-content: center;
+  overflow-x: hidden;
+  padding: calc(20px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
+  margin: 0;
+}
+
+/* Custom Premium Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(3, 4, 12, 0.5);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 140, 26, 0.2);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* Base Wrapper */
+.app {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Typography */
+h1 {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #ffffff 30%, #a4b3f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 4px;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.headline-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.headline-inline-edit {
+  display: none;
+  width: 100%;
+  max-width: 420px;
+  gap: 8px;
+  justify-content: center;
+}
+
+.headline-inline-edit input {
+  margin-bottom: 0;
+}
+
+/* View Control & Transitions - slide, scale & blur entry */
+@keyframes viewSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.985);
+    filter: blur(3px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.view {
+  display: none;
+  opacity: 0;
+  transform: translateY(20px) scale(0.985);
+}
+
+.view.active {
+  display: block;
+  animation: viewSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Glassmorphism Cards */
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-premium);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.card::before {
+  display: none; /* Strip top glow strip for minimalist styling */
+}
+
+.card:hover {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  padding-bottom: 12px;
+}
+
+.card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-highlight);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chip {
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: rgba(255, 140, 26, 0.1);
+  color: var(--accent);
+  border: 1px solid rgba(255, 140, 26, 0.25);
+}
+
+/* Premium Form Elements */
+label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+  display: block;
+}
+
+select, input {
+  width: 100%;
+  min-height: var(--control-height);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(4, 5, 15, 0.85);
+  color: var(--text-main);
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.25s ease;
+  margin-bottom: 12px;
+  outline: none;
+}
+
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ff8c1a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: calc(100% - 16px) center;
+  background-size: 18px;
+  padding-right: 44px;
+}
+
+select:focus, input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 140, 26, 0.15);
+  background: rgba(8, 10, 26, 0.95);
+}
+
+.row {
+  display: flex;
+  gap: 16px;
+}
+.row > div {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Dynamic Muscle Battlefield Tabs */
+.muscle-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.muscle-tab:last-child {
+  grid-column: span 2;
+}
+
+.muscle-tab {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 16px 20px 16px 36px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-main);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  min-height: 68px;
+}
+
+.muscle-tab::before {
+  content: "";
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: all 0.2s ease;
+}
+
+.muscle-tab:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.muscle-tab.active {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--accent);
+}
+
+.muscle-tab.active::before {
+  background: var(--accent);
+  transform: translateY(-50%) scale(1.2);
+}
+
+.muscle-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-highlight);
+}
+
+.muscle-last {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+  font-weight: 500;
+}
+
+/* Premium Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 99px;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+  min-height: 44px;
+  padding: 10px 24px;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(255, 106, 0, 0.55), 0 0 15px rgba(255, 140, 26, 0.2);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.btn-cyan {
+  background: rgba(0, 229, 255, 0.05);
+  color: var(--cyan);
+  border: 1px solid rgba(0, 229, 255, 0.15);
+}
+
+.btn-cyan:hover {
+  background: rgba(0, 229, 255, 0.1);
+  border-color: var(--cyan);
+}
+
+.btn-danger {
+  background: rgba(255, 71, 71, 0.05);
+  color: #ff7777;
+  border: 1px solid rgba(255, 71, 71, 0.15);
+}
+
+.btn-danger:hover {
+  background: rgba(255, 71, 71, 0.1);
+  border-color: var(--danger);
+}
+
+.btn-success {
+  background: rgba(0, 230, 118, 0.05);
+  color: #66ffa6;
+  border: 1px solid rgba(0, 230, 118, 0.15);
+}
+
+.btn-success:hover {
+  background: rgba(0, 230, 118, 0.1);
+  border-color: var(--success);
+}
+
+.btn-sm {
+  min-height: 34px;
+  padding: 6px 14px;
+  font-size: 0.78rem;
+}
+
+.icon-btn {
+  width: var(--control-height);
+  height: var(--control-height);
+  border-radius: var(--radius-md);
+  padding: 0;
+  font-size: 1.1rem;
+}
+
+.btn-rect {
+  border-radius: var(--radius-md);
+  min-height: 40px;
+}
+
+/* Toolbar Grids & Top Bars */
+.toolbar-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.top-quick-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+
+.top-bar span {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* Dynamic Sets Matrix */
+.sets-list {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 16px;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.set-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  animation: slideIn 0.25s ease-out;
+}
+
+.set-row > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.set-row label {
+  font-size: 0.68rem;
+  margin-bottom: 4px;
+}
+
+.set-row input {
+  margin-bottom: 0;
+  min-height: var(--control-height-sm);
+  padding: 8px 12px;
+  font-size: 0.88rem;
+}
+
+.set-delete-btn {
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 71, 71, 0.2);
+  background: rgba(255, 71, 71, 0.05);
+  color: #ff7777;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.set-delete-btn:hover {
+  background: var(--danger);
+  color: #ffffff;
+  border-color: var(--danger);
+}
+
+.set-add-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+/* Lists and Recaps */
+.history-list, .bodyweight-history-list, .date-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 6px;
+  margin-top: 10px;
+}
+
+.date-history-list {
+  max-height: 480px;
+}
+
+.history-item, .date-history-item, .bodyweight-item, .overview-item {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.25s ease;
+}
+
+.history-item:hover, .date-history-item:hover, .bodyweight-item:hover, .overview-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 140, 26, 0.15);
+}
+
+.history-header, .date-history-header, .bodyweight-header, .overview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.history-title, .date-history-title, .overview-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-highlight);
+}
+
+.history-sets, .date-history-sets, .overview-sets {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.overview-meta {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.history-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.history-actions button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+}
+
+.history-actions button:hover {
+  border-color: var(--danger);
+  color: #ff7777;
+  background: rgba(255, 71, 71, 0.05);
+}
+
+/* Premium Dashboard Metrics */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.stat {
+  background: rgba(4, 5, 15, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  text-align: center;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.01);
+}
+
+.stat-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.stat-value.success {
+  color: var(--success);
+}
+
+.stat-value.info {
+  color: var(--cyan);
+}
+
+/* Analytics Chart Wrapper */
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  margin-top: 10px;
+}
+
+/* Informative Badges */
+.badge-info {
+  display: inline-flex;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 99px;
+  background: rgba(0, 229, 255, 0.05);
+  color: var(--cyan);
+  border: 1px solid rgba(0, 229, 255, 0.15);
+  margin-top: 8px;
+}
+
+.badge-error {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ff7777;
+  background: rgba(255, 71, 71, 0.05);
+  border: 1px solid rgba(255, 71, 71, 0.15);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  margin-top: 8px;
+  animation: shake 0.4s ease;
+}
+
+.type-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+/* Focus and State Helpers */
+.focus-hidden {
+  display: none !important;
+}
+
+.mode-select {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 6px 16px;
+  border-radius: 99px;
+}
+
+.mode-select label {
+  margin-bottom: 0;
+}
+
+/* Workout Complete Splash / Summary */
+.summary-screen {
+  text-align: center;
+  padding: 40px 20px;
+  animation: zoomIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.summary-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 0 15px var(--accent));
+  animation: pulse 2s infinite;
+}
+
+.summary-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #ffffff 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.summary-quote {
+  font-style: italic;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+}
+
+/* Keyframes & Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes zoomIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(255, 140, 26, 0.4)); }
+  50% { transform: scale(1.05); filter: drop-shadow(0 0 25px rgba(255, 140, 26, 0.7)); }
+  100% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(255, 140, 26, 0.4)); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+/* Responsive Rules */
+@media (max-width: 640px) {
+  body {
+    padding: 10px 6px;
+  }
+  
+  .card {
+    padding: 16px;
+    border-radius: var(--radius-md);
+  }
+  
+  h1 {
+    font-size: 1.6rem;
+  }
+  
+  .muscle-tabs {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  
+  .muscle-tab {
+    padding: 10px 10px 10px 24px;
+    min-height: 48px;
+    border-radius: var(--radius-sm);
+  }
+  
+  .muscle-tab::before {
+    left: 10px;
+    width: 6px;
+    height: 6px;
+  }
+  
+  .muscle-name {
+    font-size: 0.8rem;
+  }
+  
+  .muscle-last {
+    font-size: 0.62rem;
+    margin-top: 1px;
+  }
+  
+  .muscle-tab:last-child {
+    grid-column: span 2;
+  }
+  
+  .row {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .toolbar-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .top-quick-actions {
+    justify-content: stretch;
+  }
+  
+  .top-quick-actions button {
+    flex: 1;
+  }
+  
+  .chart-wrapper {
+    height: 190px;
+  }
+  
+  .stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Ensure input[type="date"] displays the calendar icon and works elegantly */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(65%) sepia(85%) saturate(1450%) hue-rotate(345deg) brightness(101%) contrast(101%); /* match our adrenaline orange #ff8c1a */
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   ULTRA-COMPACT STEP 3 LAYOUT (NO SCROLLING REQUIRED)
+   ========================================================================== */
+
+#view-workout .card {
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+}
+
+#view-workout .card-header {
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+}
+
+#view-workout .card-title {
+  font-size: 0.95rem;
+}
+
+#view-workout label {
+  font-size: 0.72rem;
+  margin-bottom: 4px;
+}
+
+#view-workout select, 
+#view-workout input {
+  min-height: 36px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+  border-radius: var(--radius-sm);
+}
+
+#view-workout .sets-list {
+  padding: 8px 12px;
+  margin-top: 6px;
+  border-radius: var(--radius-sm);
+  gap: 8px;
+}
+
+#view-workout .set-row {
+  gap: 6px;
+}
+
+#view-workout .set-row input,
+#view-workout .set-row select,
+#view-workout .set-row .custom-input-wrap input {
+  min-height: 32px;
+  padding: 6px 10px;
+  font-size: 0.82rem;
+}
+
+#view-workout .set-delete-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+}
+
+#view-workout .btn {
+  min-height: 36px;
+  padding: 6px 16px;
+  font-size: 0.82rem;
+}
+
+/* History and charts are preserved at the bottom; users can scroll down if they wish to analyze them, or turn on Focus Mode to hide them. */
+
+/* ==========================================================================
+   THEME SKIN CUSTOM OVERRIDES (ORANGE, ACID, SYNTHWAVE, STEALTH)
+   ========================================================================== */
+
+[data-theme="acid"] {
+  --accent: #39ff14;
+  --accent-glow: rgba(57, 255, 20, 0.15);
+  --accent-deep: #00e600;
+  --accent-neon: #8eed2f;
+  --cyan: #00e5ff;
+  --cyan-glow: rgba(0, 229, 255, 0.15);
+  --cyan-deep: #0099b8;
+  --border-soft: rgba(255, 255, 255, 0.05);
+  --bg-gradient: linear-gradient(180deg, #050d03 0%, #020308 100%);
+}
+
+[data-theme="synthwave"] {
+  --accent: #ff007f;
+  --accent-glow: rgba(255, 0, 127, 0.15);
+  --accent-deep: #cc00cc;
+  --accent-neon: #ff4db2;
+  --cyan: #00e5ff;
+  --cyan-glow: rgba(0, 229, 255, 0.15);
+  --bg-gradient: linear-gradient(180deg, #0d0413 0%, #03040c 100%);
+}
+
+[data-theme="stealth"] {
+  --accent: #e0e0e0;
+  --accent-glow: rgba(255, 255, 255, 0.1);
+  --accent-deep: #666666;
+  --accent-neon: #ffffff;
+  --cyan: #888888;
+  --cyan-glow: rgba(136, 136, 136, 0.1);
+  --bg-gradient: linear-gradient(180deg, #101014 0%, #040407 100%);
+}
+
+/* ==========================================================================
+   DYNAMIC MUSCLE FATIGUE GLOW STATES
+   ========================================================================== */
+
+.muscle-tab.fatigued {
+  border-color: rgba(255, 71, 71, 0.4) !important;
+}
+.muscle-tab.fatigued::before {
+  background: var(--danger) !important;
+}
+
+.muscle-tab.ready {
+  border-color: rgba(255, 140, 26, 0.4) !important;
+}
+.muscle-tab.ready::before {
+  background: var(--accent) !important;
+}
+
+.muscle-tab.cold {
+  border-color: rgba(0, 229, 255, 0.4) !important;
+}
+.muscle-tab.cold::before {
+  background: var(--cyan) !important;
+}
+
+/* ==========================================================================
+   ACHIEVEMENTS BADGES NEON ACTIVE GLOWS
+   ========================================================================== */
+
+.stat.badge-active {
+  opacity: 1 !important;
+  background: rgba(255, 140, 26, 0.05) !important;
+  border-color: var(--accent) !important;
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+.stats-row .stat {
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+.stats-row .stat:hover {
+  transform: translateY(-2px);
+  opacity: 0.8 !important;
+  border-color: rgba(255, 140, 26, 0.15) !important;
+}
+
+[data-theme="acid"] .stat.badge-active {
+  background: rgba(57, 255, 20, 0.05) !important;
+  border-color: var(--accent) !important;
+}
+
+[data-theme="synthwave"] .stat.badge-active {
+  background: rgba(255, 0, 127, 0.05) !important;
+  border-color: var(--accent) !important;
+}
+
+[data-theme="stealth"] .stat.badge-active {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: var(--accent) !important;
+}
+
+/* ==========================================================================
+   TACTILE SET CHECKBOX & PARTICLE ANIMATIONS
+   ========================================================================== */
+
+.set-checkbox {
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  background: rgba(4, 5, 15, 0.85);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  color: transparent;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.set-checkbox.checked {
+  border-color: var(--success);
+  background: var(--success);
+  color: #03040c;
+  box-shadow: 0 0 12px var(--success);
+  transform: scale(1.08);
+}
+
+.set-row.checked-row input, 
+.set-row.checked-row select {
+  opacity: 0.5;
+  border-color: var(--success);
+  background: rgba(0, 230, 118, 0.02);
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+/* CSS spark emitter particles */
+.spark-spark {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 8px var(--success);
+  pointer-events: none;
+  z-index: 1000;
+  animation: explode 0.5s cubic-bezier(0.1, 0.8, 0.25, 1) forwards;
+}
+
+@keyframes explode {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+}
+
+/* ==========================================================================
+   GLASSMORPHIC SETTINGS MODAL POPUP
+   ========================================================================== */
+
+.settings-gear-btn {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+.settings-gear-btn.sparkle-active {
+  animation: gear-sparkle-spin 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+}
+
+@keyframes gear-sparkle-spin {
+  0% { transform: rotate(0deg) scale(1); box-shadow: 0 0 0px var(--accent); }
+  50% { transform: rotate(180deg) scale(1.3); box-shadow: 0 0 25px var(--accent); background: rgba(255, 140, 26, 0.2); }
+  100% { transform: rotate(360deg) scale(1); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+}
+
+.settings-gear-btn:hover {
+  transform: rotate(45deg) scale(1.1);
+  background: rgba(255, 140, 26, 0.1) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+  box-shadow: 0 0 15px rgba(255, 140, 26, 0.3) !important;
+}
+
+.modal-overlay {
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-card select, 
+.modal-card input {
+  min-height: var(--control-height-sm) !important;
+  padding: 8px 12px !important;
+  font-size: 0.85rem !important;
+  border-radius: var(--radius-sm) !important;
+  margin-bottom: 0px !important;
+}
+
+.modal-close-btn:hover {
+  color: var(--danger) !important;
+}
+
+/* Mobile landscape and compact viewport spacing compression for Step 3 */
+@media (max-width: 600px) {
+  #view-workout .card-header {
+    display: none !important;
+  }
+  
+  #view-workout .card {
+    padding: 8px 10px !important;
+    margin-bottom: 6px !important;
+    border-radius: var(--radius-sm) !important;
+  }
+  
+  #view-workout .row {
+    gap: 6px !important;
+    margin-top: 4px !important;
+  }
+  
+  #view-workout select, 
+  #view-workout input {
+    min-height: 28px !important;
+    padding: 4px 8px !important;
+    font-size: 0.8rem !important;
+    margin-bottom: 4px !important;
+  }
+  
+  #view-workout label {
+    font-size: 0.65rem !important;
+    margin-bottom: 2px !important;
+  }
+  
+  #view-workout #lastTrainedExercise {
+    font-size: 0.8rem !important;
+  }
+  
+  #view-workout #lastSessionSummary {
+    font-size: 0.68rem !important;
+    margin-top: 2px !important;
+  }
+  
+  #view-workout #suggestionSummary {
+    font-size: 0.68rem !important;
+    margin-top: 2px !important;
+  }
+  
+  #view-workout #exerciseTypeHint,
+  #view-workout #setsHelperText {
+    display: none !important;
+  }
+  
+  #view-workout .sets-list {
+    padding: 4px 6px !important;
+    margin-top: 4px !important;
+    gap: 4px !important;
+  }
+  
+  #view-workout .set-row {
+    gap: 4px !important;
+  }
+  
+  #view-workout .set-row > div {
+    margin-bottom: 0 !important;
+  }
+  
+  #view-workout .set-row input,
+  #view-workout .set-row select,
+  #view-workout .set-row .custom-input-wrap input {
+    min-height: 26px !important;
+    padding: 4px 6px !important;
+    font-size: 0.78rem !important;
+  }
+  
+  #view-workout .set-delete-btn {
+    width: 26px !important;
+    height: 26px !important;
+    min-height: 26px !important;
+  }
+  
+  #view-workout #btnCopyLastSets,
+  #view-workout #btnAddSet {
+    min-height: 26px !important;
+    font-size: 0.75rem !important;
+    padding: 4px 8px !important;
+  }
+  
+  #view-workout #btnSaveWorkout {
+    min-height: 38px !important;
+    border-radius: var(--radius-sm) !important;
+    font-size: 0.85rem !important;
+    margin-top: 6px !important;
+    padding: 6px !important;
+  }
+  
+  #view-workout .top-bar {
+    padding: 2px 0 !important;
+    margin-bottom: 2px !important;
+  }
+}
+
+/* ================================================
+   Exercise Manager View
+   ================================================ */
+.ex-manager-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 65vh;
+  overflow-y: auto;
+}
+
+.ex-manager-group {
+  margin-bottom: 12px;
+}
+
+.ex-manager-group-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 8px 0 6px;
+  border-bottom: 1px solid rgba(255, 140, 26, 0.15);
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ex-manager-group-title .ex-count {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: none;
+}
+
+.ex-manager-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-sm);
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.ex-manager-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.ex-manager-item .ex-name {
+  flex: 1;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.ex-manager-item .ex-name input {
+  margin-bottom: 0;
+  font-size: 0.82rem;
+  padding: 4px 8px;
+  min-height: 28px;
+}
+
+.ex-manager-item .ex-type-badge {
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 140, 26, 0.1);
+  color: var(--accent);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.ex-manager-item .ex-type-badge.bodyweight {
+  background: rgba(0, 246, 237, 0.1);
+  color: var(--cyan);
+}
+
+.ex-manager-item .ex-type-badge.cardio {
+  background: rgba(139, 92, 246, 0.1);
+  color: #a78bfa;
+}
+
+.ex-manager-item .ex-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.ex-manager-item .ex-actions button {
+  padding: 3px 6px;
+  min-height: 26px;
+  min-width: 26px;
+  font-size: 0.75rem;
+  border-radius: var(--radius-sm);
+}
+
+
+
+/* ================================================
+   Date History Improved Layout
+   ================================================ */
+.date-history-controls {
+  margin-bottom: 12px;
+}
+
+.date-history-input-group {
+  max-width: 280px;
+}
+
+.date-history-input-group label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.date-history-summary {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(4, 5, 15, 0.6);
+  margin-bottom: 16px;
+}
+
+.date-history-summary strong {
+  color: var(--accent);
+}
+
+.date-history-list {
+  margin-top: 0;
+}
+
+/* ================================================
+   Standard Dropdown Set Inputs
+   ================================================ */
+.set-select-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.set-select-group select {
+  margin-bottom: 0;
+  min-height: 32px;
+  padding: 4px 8px;
+  font-size: 0.82rem;
+}
+
+.set-select-group .custom-input-wrap {
+  display: none;
+}
+
+.set-select-group .custom-input-wrap.active {
+  display: block;
+}
+
+.set-select-group .custom-input-wrap input {
+  margin-bottom: 0;
+  margin-top: 4px;
+  min-height: 28px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+}
+
+/* Edit button for history items */
+.history-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.history-actions button {
+  padding: 2px 6px;
+  min-height: 24px;
+  font-size: 0.72rem;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.history-actions button:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.history-actions button.edit-btn {
+  color: var(--cyan);
+  border-color: rgba(0, 246, 237, 0.15);
+}
+
+.history-actions button.edit-btn:hover {
+  background: rgba(0, 246, 237, 0.08);
+}
+
+/* ================================================
+   Exercise How-To Panel Styles
+   ================================================ */
+.ex-howto-panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease;
+  opacity: 0;
+  margin-top: 0;
+  padding: 0 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ex-howto-panel.active {
+  max-height: 500px;
+  opacity: 1;
+  margin-top: 8px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: max-height 0.3s cubic-bezier(0.86, 0, 0.07, 1), opacity 0.3s ease;
+}
+
+.ex-howto-steps {
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  padding-left: 14px;
+  margin: 0;
+}
+
+.ex-howto-steps li {
+  margin-bottom: 4px;
+}
+
+.ex-howto-visual {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed rgba(0, 246, 237, 0.15);
+  background: rgba(0, 246, 237, 0.02);
+  border-radius: var(--radius-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.ex-howto-visual::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+  animation: pulse-visual 2s infinite ease-in-out;
+}
+
+@keyframes pulse-visual {
+  0%, 100% { transform: translateY(15px) scale(1); opacity: 0.5; }
+  50% { transform: translateY(-15px) scale(1.3); opacity: 1; }
+}
+
+/* ================================================
+   Responsive overrides for Training Mode Top-Shift
+   ================================================ */
+@media (max-width: 600px) {
+  .top-quick-actions {
+    display: grid !important;
+    grid-template-columns: 1.15fr 0.9fr 0.95fr !important;
+    gap: 8px !important;
+    justify-content: stretch !important;
+    align-items: center !important;
+  }
+  .top-quick-actions button, .top-quick-actions select {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 4px 4px !important;
+    font-size: 0.72rem !important;
+    text-align: center !important;
+  }
+}
+
+/* ================================================
+   Custom Interactive Calendar
+   ================================================ */
+.custom-calendar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--text-highlight);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cal-nav-btn {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 2px 8px;
+  transition: all 0.2s;
+}
+
+.cal-nav-btn:hover {
+  color: var(--text-primary);
+  text-shadow: 0 0 8px var(--accent);
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  text-align: center;
+}
+
+.cal-weekday {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.cal-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.cal-day:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+}
+
+.cal-day.empty-day {
+  background: transparent;
+  border: none;
+  cursor: default;
+  pointer-events: none;
+}
+
+.cal-day.has-logs {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 5px rgba(255, 140, 26, 0.15), 0 0 5px rgba(255, 140, 26, 0.15);
+}
+
+/* Little glowing pulse dot under the day number */
+.cal-day.has-logs::after {
+  content: "";
+  position: absolute;
+  bottom: 3px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+}
+
+.cal-day.selected-day {
+  background: linear-gradient(135deg, var(--accent) 0%, #ff5500 100%) !important;
+  color: #03040c !important;
+  font-weight: 800;
+  box-shadow: 0 0 15px rgba(255, 140, 26, 0.45) !important;
+  border: none !important;
+}
+
+.cal-day.selected-day::after {
+  background: #03040c !important;
+  box-shadow: none !important;
+}
+
+/* ================================================
+   GTM PREMIUM CYBERPUNK ANIMATIONS SUITE
+   ================================================ */
+
+/* 1. Cyberpunk Title Glitch & Neon Pulse */
+@keyframes cyber-pulse {
+  0%, 100% {
+    text-shadow: 0 0 8px var(--accent-glow), 0 0 20px rgba(255, 255, 255, 0.05);
+  }
+  50% {
+    text-shadow: 0 0 18px var(--accent-glow), 0 0 35px var(--accent-glow);
+  }
+}
+@keyframes cyber-glitch {
+  0%, 94%, 98%, 100% {
+    transform: skew(0deg) translate(0);
+    text-shadow: 0 0 8px var(--accent-glow);
+  }
+  95% {
+    transform: skew(1.5deg) translate(-2px, 1px);
+    text-shadow: -2px 0 var(--cyan), 2px 0 #ff007f;
+  }
+  96% {
+    transform: skew(-1.5deg) translate(2px, -1px);
+    text-shadow: 2px 0 var(--cyan), -2px 0 #ff007f;
+  }
+  97% {
+    transform: skew(0deg) translate(0);
+  }
+}
+.cyber-header-glow {
+  animation: cyber-pulse 4s ease-in-out infinite, cyber-glitch 6s infinite;
+  display: inline-block;
+}
+
+/* 2. Conquest Streak Plasma Glow */
+@keyframes plasma-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  50% {
+    box-shadow: 0 0 28px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-neon);
+    transform: translateY(-4px);
+  }
+}
+.stat.badge-active {
+  animation: plasma-glow 3s infinite ease-in-out !important;
+}
+
+/* 3. Focus Mode Edge-Glow Vignette */
+@keyframes focus-breath {
+  0%, 100% {
+    box-shadow: inset 0 0 15px var(--cyan-glow);
+  }
+  50% {
+    box-shadow: inset 0 0 35px rgba(0, 229, 255, 0.4);
+  }
+}
+body.focus-active {
+  animation: focus-breath 4s infinite ease-in-out;
+}
+
+/* 4. Settings Spark Gravity Physics (Ultra-Realistic Grinding Spark Trails) */
+.setting-spark-wrap {
+  position: absolute;
+  pointer-events: none;
+  z-index: 10000;
+  animation: setting-gravity-fall 0.65s cubic-bezier(0.05, 0.6, 0.2, 1) forwards;
+}
+.setting-spark-core {
+  width: 1.2px;
+  height: 28px;
+  border-radius: 0.5px;
+  transform-origin: center bottom;
+  filter: brightness(2.8) contrast(1.2);
+  opacity: 0.95;
+  animation: spark-sputter 0.65s cubic-bezier(0.05, 0.6, 0.2, 1) forwards;
+}
+@keyframes setting-gravity-fall {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+  25% {
+    /* t = 0.25: linear horizontal displacement, parabolic accelerated gravity drop */
+    transform: translate3d(
+      calc(var(--dx) * 0.28 + var(--drift) * 0.05),
+      calc(var(--dy) * 0.28 + var(--g) * 0.0625),
+      0
+    );
+    opacity: 1;
+  }
+  50% {
+    /* t = 0.50: middle flight arc */
+    transform: translate3d(
+      calc(var(--dx) * 0.53 + var(--drift) * 0.25),
+      calc(var(--dy) * 0.53 + var(--g) * 0.25),
+      0
+    );
+    opacity: 1;
+  }
+  75% {
+    /* t = 0.75: steepening curve descent */
+    transform: translate3d(
+      calc(var(--dx) * 0.78 + var(--drift) * 0.60),
+      calc(var(--dy) * 0.78 + var(--g) * 0.5625),
+      0
+    );
+    opacity: 1;
+  }
+  100% {
+    /* t = 1.00: fully parabolic end position */
+    transform: translate3d(
+      calc(var(--dx) * 0.95 + var(--drift)),
+      calc(var(--dy) + var(--g)),
+      0
+    );
+    opacity: 0;
+  }
+}
+@keyframes spark-sputter {
+  0% {
+    transform: rotate(var(--rad-start)) scaleY(0.1);
+    box-shadow: 0 0 4px var(--color), 0 0 1px #ffffff;
+    background: linear-gradient(to top, rgba(255, 50, 0, 0) 0%, rgba(255, 100, 0, 0.4) 20%, var(--color) 60%, #ffffff 100%);
+  }
+  20% {
+    /* Rotate dynamically to align perfectly with the curve's tangential vector */
+    transform: rotate(calc(var(--rad-start) * 0.8 + var(--rad-end) * 0.2)) scaleY(var(--scale-y));
+    box-shadow: 0 0 5px var(--color), 0 0 1.5px #ffffff;
+    background: linear-gradient(to top, rgba(255, 50, 0, 0) 0%, rgba(255, 100, 0, 0.4) 20%, var(--color) 60%, #ffffff 100%);
+  }
+  70% {
+    transform: rotate(calc(var(--rad-start) * 0.35 + var(--rad-end) * 0.65)) scaleY(var(--scale-y));
+    box-shadow: 0 0 5px var(--color), 0 0 1.5px #ffffff;
+    background: linear-gradient(to top, rgba(255, 50, 0, 0) 0%, rgba(255, 100, 0, 0.4) 20%, var(--color) 60%, #ffffff 100%);
+    opacity: 0.95;
+  }
+  75% {
+    /* Collapse streak into a bright white point just before carbon pop */
+    transform: rotate(calc(var(--rad-start) * 0.15 + var(--rad-end) * 0.85)) scaleY(0.25);
+    box-shadow: 0 0 6px var(--color), 0 0 2px #ffffff;
+    background: #ffffff;
+    opacity: 1;
+  }
+  80% {
+    /* Explosive Carbon Pop! Splitting into 4 glowing micro-embers */
+    transform: rotate(var(--rad-end)) scaleY(0.15);
+    background: #ffffff;
+    box-shadow: 
+      0 0 5px var(--color),
+      -4px -4px 3px var(--color),
+      4px -4px 3px var(--color),
+      -4px 4px 3px var(--color),
+      4px 4px 3px var(--color);
+    opacity: 1;
+  }
+  100% {
+    /* Embers expand outwards to represent sputtering sparks cooling down */
+    transform: rotate(var(--rad-end)) scaleY(0.01);
+    background: transparent;
+    box-shadow: 
+      0 0 2px var(--color),
+      -12px -12px 6px transparent,
+      12px -12px 6px transparent,
+      -12px 12px 6px transparent,
+      12px 12px 6px transparent;
+    opacity: 0;
+  }
+}
+
+/* 5. Muscle Tab Hover Border-Sweep Effect */
+.muscle-tab {
+  overflow: hidden;
+}
+.muscle-tab::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  box-sizing: border-box;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+@keyframes border-sweep-anim {
+  0% {
+    clip-path: inset(0 0 95% 0);
+    border-color: var(--accent);
+  }
+  25% {
+    clip-path: inset(0 0 0 95%);
+    border-color: var(--accent);
+  }
+  50% {
+    clip-path: inset(95% 0 0 0);
+    border-color: var(--accent);
+  }
+  75% {
+    clip-path: inset(0 95% 0 0);
+    border-color: var(--accent);
+  }
+  100% {
+    clip-path: inset(0 0 95% 0);
+    border-color: var(--accent);
+  }
+}
+.muscle-tab:hover::after {
+  animation: border-sweep-anim 1.5s linear infinite;
+}
+.muscle-tab.active::after {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 10px var(--accent-glow) !important;
+  clip-path: none !important;
+}
+
+/* 6. Mode select centered alignment option display */
+select#modeSelect,
+select.mode-select {
+  text-align: center !important;
+  text-align-last: center !important;
+}
+select#modeSelect option,
+select.mode-select option {
+  text-align: center !important;
+}
+
+/* ================================================
+   Custom Bench Press Motion Dynamics
+   ================================================ */
+.bench-press-anim-container {
+  position: relative;
+  width: 100%;
+  height: 100px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: rgba(3, 4, 12, 0.85);
+  border: 1px dashed rgba(0, 246, 237, 0.25);
+  background-image: radial-gradient(rgba(0, 246, 237, 0.03) 1px, transparent 1px);
+  background-size: 8px 8px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.95);
+}
+
+/* Center dividing dashed line */
+.bench-press-anim-container::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: 50%;
+  width: 1px;
+  border-left: 1px dashed rgba(255, 255, 255, 0.12);
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Panel Layouts */
+.kinetics-view {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dynamics-label {
+  position: absolute;
+  top: 6px;
+  left: 10px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  z-index: 4;
+}
+
+.dynamics-phase {
+  position: absolute;
+  bottom: 6px;
+  left: 10px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  z-index: 4;
+  animation: phase-label-pulse 3s infinite steps(1);
+}
+
+.dynamics-phase::after {
+  content: "LOCKOUT";
+  animation: phase-text-anim 3s infinite steps(1);
+}
+
+/* ================================================
+   FRONT KINETICS (Left Half)
+   ================================================ */
+.front-view .bench-press-bench {
+  position: absolute;
+  bottom: 25px;
+  width: 90px;
+  height: 4px;
+  background: #3a3d52;
+  border-radius: 2px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+.front-view .bench-press-bench-legs {
+  position: absolute;
+  bottom: 5px;
+  width: 66px;
+  height: 20px;
+  border-left: 3px solid #202230;
+  border-right: 3px solid #202230;
+  z-index: 1;
+}
+
+.front-view .bench-press-torso {
+  position: absolute;
+  bottom: 29px;
+  width: 26px;
+  height: 14px;
+  border-radius: 12px 12px 0 0;
+  background: rgba(0, 246, 237, 0.08);
+  border: 1.5px solid var(--cyan);
+  box-shadow: 0 0 6px rgba(0, 246, 237, 0.15);
+  z-index: 2;
+  animation: chest-contract 3s infinite ease-in-out;
+}
+
+.front-view .bench-press-barbell {
+  position: absolute;
+  width: 110px;
+  bottom: 31px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  animation: bench-press-motion 3s infinite ease-in-out;
+}
+
+.front-view .barbell-shaft {
+  width: 100%;
+  height: 2px;
+  background: #e0e0e0;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+}
+
+.front-view .barbell-weight {
+  position: absolute;
+  width: 5px;
+  height: 18px;
+  background: var(--accent);
+  border: 1px solid #ffffff;
+  border-radius: 1px;
+  box-shadow: 0 0 5px var(--accent);
+}
+
+.front-view .weight-left { left: 4px; }
+.front-view .weight-right { right: 4px; }
+.front-view .weight-left-inner {
+  left: 11px;
+  width: 3px;
+  height: 14px;
+  background: #555555;
+  border-radius: 1px;
+}
+.front-view .weight-right-inner {
+  right: 11px;
+  width: 3px;
+  height: 14px;
+  background: #555555;
+  border-radius: 1px;
+}
+
+/* ================================================
+   SIDE BIOMECHANICS (Right Half)
+   ================================================ */
+.side-view-panel .side-bench {
+  position: absolute;
+  bottom: 25px;
+  left: 15px;
+  width: 70px;
+  height: 4px;
+  background: #3a3d52;
+  border-radius: 2px;
+  z-index: 1;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+}
+
+.side-view-panel .side-bench-legs {
+  position: absolute;
+  bottom: 5px;
+  left: 20px;
+  width: 55px;
+  height: 20px;
+  border-left: 3px solid #202230;
+  border-right: 3px solid #202230;
+  z-index: 1;
+}
+
+.side-view-panel .side-lifter-head {
+  position: absolute;
+  bottom: 29px;
+  left: 18px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(0, 246, 237, 0.08);
+  border: 1.5px solid var(--cyan);
+  box-shadow: 0 0 4px rgba(0, 246, 237, 0.15);
+  z-index: 2;
+}
+
+.side-view-panel .side-lifter-hips {
+  position: absolute;
+  bottom: 29px;
+  left: 68px;
+  width: 13px;
+  height: 9px;
+  border-radius: 3px;
+  background: rgba(0, 246, 237, 0.08);
+  border: 1.5px solid var(--cyan);
+  box-shadow: 0 0 4px rgba(0, 246, 237, 0.15);
+  z-index: 2;
+}
+
+.side-view-panel .side-lifter-torso {
+  position: absolute;
+  bottom: 29px;
+  left: 27px;
+  width: 41px;
+  height: 16px;
+  border-radius: 16px 16px 0 0;
+  background: rgba(0, 246, 237, 0.08);
+  border: 1.5px solid var(--cyan);
+  border-bottom: none;
+  z-index: 2;
+  transform-origin: center bottom;
+  animation: side-chest-contract 3s infinite ease-in-out;
+}
+
+.side-view-panel .side-lifter-leg {
+  position: absolute;
+  bottom: 5px;
+  left: 74px;
+  width: 14px;
+  height: 24px;
+  border-top: 2.5px solid var(--cyan);
+  border-right: 2.5px solid var(--cyan);
+  border-radius: 0 4px 0 0;
+  box-shadow: 1px -1px 4px rgba(0, 246, 237, 0.1);
+  z-index: 2;
+}
+
+/* Glowing side J-curve trajectory helper path in background */
+.side-view-panel .side-trajectory-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.side-view-panel .side-barbell {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 42px;
+  bottom: 31px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  animation: side-barbell-motion 3s infinite ease-in-out;
+}
+
+.side-view-panel .side-barbell-bar {
+  width: 16px;
+  height: 2px;
+  background: #e0e0e0;
+  box-shadow: 0 0 3px rgba(255, 255, 255, 0.5);
+  position: absolute;
+}
+
+.side-view-panel .side-barbell-plate {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 1px solid #ffffff;
+  box-shadow: 0 0 6px var(--accent);
+  position: absolute;
+  z-index: 1;
+}
+
+.side-view-panel .side-barbell-collar {
+  width: 3px;
+  height: 8px;
+  background: #555555;
+  border-radius: 1px;
+  position: absolute;
+  left: -2px;
+  z-index: 2;
+}
+
+/* ================================================
+   FLIGHT MECHANICS AND DEFORMATION TIMINGS
+   ================================================ */
+@keyframes bench-press-motion {
+  0%, 100% {
+    transform: translate3d(0, -27px, 0);
+    animation-timing-function: cubic-bezier(0.4, 0, 1, 1); /* Control descending */
+  }
+  42% {
+    transform: translate3d(0, 0, 0);
+    animation-timing-function: linear;
+  }
+  55% {
+    transform: translate3d(0, 0, 0);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1); /* Fast acceleration up */
+  }
+  82% {
+    transform: translate3d(0, -27px, 0);
+    animation-timing-function: linear;
+  }
+}
+
+@keyframes side-barbell-motion {
+  0%, 100% {
+    transform: translate3d(0, -27px, 0);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.8, 0.8);
+  }
+  42% {
+    transform: translate3d(14px, 0, 0);
+    animation-timing-function: linear;
+  }
+  55% {
+    transform: translate3d(14px, 0, 0);
+    animation-timing-function: cubic-bezier(0.1, 0.8, 0.3, 1); /* S-curve drive back up */
+  }
+  82% {
+    transform: translate3d(0, -27px, 0);
+    animation-timing-function: linear;
+  }
+}
+
+@keyframes chest-contract {
+  0%, 100% {
+    background: rgba(0, 246, 237, 0.08);
+    border-color: var(--cyan);
+    box-shadow: 0 0 6px rgba(0, 246, 237, 0.15);
+    transform: scaleY(1);
+  }
+  42%, 55% {
+    background: rgba(255, 60, 0, 0.18); /* Deep stretch muscle loading */
+    border-color: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    transform: scaleY(0.85); /* Chest compressed under bar weight */
+  }
+  82% {
+    background: rgba(0, 246, 237, 0.3); /* Peak concentric contraction */
+    border-color: var(--cyan);
+    box-shadow: 0 0 12px var(--cyan);
+    transform: scaleY(1.08);
+  }
+}
+
+@keyframes side-chest-contract {
+  0%, 100% {
+    background: rgba(0, 246, 237, 0.08);
+    border-color: var(--cyan);
+    box-shadow: 0 0 6px rgba(0, 246, 237, 0.15);
+    transform: scaleY(1);
+  }
+  42%, 55% {
+    background: rgba(255, 60, 0, 0.18);
+    border-color: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    transform: scaleY(0.8125); /* Chest compressed under bar weight */
+  }
+  82% {
+    background: rgba(0, 246, 237, 0.3);
+    border-color: var(--cyan);
+    box-shadow: 0 0 12px var(--cyan);
+    transform: scaleY(1.0625);
+  }
+}
+
+@keyframes phase-label-pulse {
+  0%, 15%, 100% {
+    color: var(--cyan);
+  }
+  20%, 40% {
+    color: #ffaa33;
+  }
+  42%, 55% {
+    color: var(--danger);
+  }
+  60%, 90% {
+    color: var(--success);
+  }
+}
+
+@keyframes phase-text-anim {
+  0%, 15%, 100% {
+    content: "LOCKOUT";
+  }
+  20%, 40% {
+    content: "DESCENDING (ECCENTRIC)";
+  }
+  42%, 55% {
+    content: "ACTIVE PAUSE";
+  }
+  60%, 90% {
+    content: "DRIVING (CONCENTRIC)";
+  }
+}
+
+/* ==========================================================================
+   INCLINE BENCH PRESS MOTION DYNAMICS
+   ========================================================================== */
+.incline-mode .incline-bench-front {
+  position: absolute;
+  bottom: 27px;
+  width: 90px;
+  height: 4px;
+  background: #3a3d52;
+  border-radius: 2px;
+  transform: rotate(-15deg);
+  z-index: 1;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+}
+
+.incline-mode .incline-bench-legs-front {
+  position: absolute;
+  bottom: 5px;
+  width: 66px;
+  height: 22px;
+  border-left: 3px solid #202230;
+  border-right: 3px solid #202230;
+  z-index: 1;
+}
+
+.incline-mode .incline-torso-front {
+  position: absolute;
+  bottom: 30px;
+  width: 26px;
+  height: 14px;
+  border-radius: 12px 12px 0 0;
+  background: rgba(0, 246, 237, 0.08);
+  border: 1.5px solid var(--cyan);
+  box-shadow: 0 0 6px rgba(0, 246, 237, 0.15);
+  z-index: 2;
+  transform: skewX(-8deg);
+  animation: incline-chest-contract 3s infinite ease-in-out;
+}
+
+.incline-mode .incline-barbell-front {
+  position: absolute;
+  width: 110px;
+  bottom: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  animation: incline-bench-press-motion 3s infinite ease-in-out;
+}
+
+.incline-mode .incline-bench-side {
+  position: absolute;
+  bottom: 25px;
+  left: 15px;
+  width: 70px;
+  height: 4px;
+  background: #3a3d52;
+  border-radius: 2px;
+  z-index: 1;
+  transform: rotate(-30deg);
+  transform-origin: left center;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+}
+
+.incline-mode .incline-bench-legs-side {
+  position: absolute;
+  bottom: 5px;
+  left: 20px;
+  width: 55px;
+  height: 23px;
+  border-left: 3px solid #202230;
+  border-right: 3px solid #202230;
+  z-index: 1;
+}
+
+.incline-mode .incline-lifter-head {
+  position: absolute;
+  bottom: 48px;
+  left: 20px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(0, 246, 237, 0.08);
+  border: 1.5px solid var(--cyan);
+  box-shadow: 0 0 4px rgba(0, 246, 237, 0.15);
+  z-index: 2;
+}
+
+.incline-mode .incline-lifter-hips {
+  position: absolute;
+  bottom: 25px;
+  left: 64px;
+  width: 12px;
+  height: 9px;
+  border-radius: 3px;
+  background: rgba(0, 246, 237, 0.08);
+  border: 1.5px solid var(--cyan);
+  box-shadow: 0 0 4px rgba(0, 246, 237, 0.15);
+  z-index: 2;
+}
+
+.incline-mode .incline-lifter-torso {
+  position: absolute;
+  bottom: 28px;
+  left: 26px;
+  width: 40px;
+  height: 14px;
+  border-radius: 12px 12px 0 0;
+  background: rgba(0, 246, 237, 0.08);
+  border: 1.5px solid var(--cyan);
+  border-bottom: none;
+  z-index: 2;
+  transform: rotate(-30deg);
+  transform-origin: left bottom;
+  animation: incline-side-chest-contract 3s infinite ease-in-out;
+}
+
+.incline-mode .incline-lifter-leg {
+  position: absolute;
+  bottom: 5px;
+  left: 70px;
+  width: 14px;
+  height: 20px;
+  border-top: 2.5px solid var(--cyan);
+  border-right: 2.5px solid var(--cyan);
+  border-radius: 0 4px 0 0;
+  z-index: 2;
+  box-shadow: 1px -1px 4px rgba(0, 246, 237, 0.1);
+}
+
+.incline-mode .incline-barbell-side {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 34px;
+  bottom: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  animation: incline-side-barbell-motion 3s infinite ease-in-out;
+}
+
+@keyframes incline-bench-press-motion {
+  0%, 100% {
+    transform: translate3d(0, -20px, 0);
+    animation-timing-function: cubic-bezier(0.4, 0, 1, 1);
+  }
+  42% {
+    transform: translate3d(0, 0, 0);
+    animation-timing-function: linear;
+  }
+  55% {
+    transform: translate3d(0, 0, 0);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+  82% {
+    transform: translate3d(0, -20px, 0);
+    animation-timing-function: linear;
+  }
+}
+
+@keyframes incline-side-barbell-motion {
+  0%, 100% {
+    transform: translate3d(0, -16px, 0);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.8, 0.8);
+  }
+  42% {
+    transform: translate3d(14px, 0, 0);
+    animation-timing-function: linear;
+  }
+  55% {
+    transform: translate3d(14px, 0, 0);
+    animation-timing-function: cubic-bezier(0.1, 0.8, 0.3, 1);
+  }
+  82% {
+    transform: translate3d(0, -16px, 0);
+    animation-timing-function: linear;
+  }
+}
+
+@keyframes incline-chest-contract {
+  0%, 100% {
+    background: rgba(0, 246, 237, 0.08);
+    border-color: var(--cyan);
+    box-shadow: 0 0 6px rgba(0, 246, 237, 0.15);
+    transform: skewX(-8deg) scaleY(1);
+  }
+  42%, 55% {
+    background: rgba(255, 60, 0, 0.18);
+    border-color: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    transform: skewX(-8deg) scaleY(0.85);
+  }
+  82% {
+    background: rgba(0, 246, 237, 0.3);
+    border-color: var(--cyan);
+    box-shadow: 0 0 12px var(--cyan);
+    transform: skewX(-8deg) scaleY(1.08);
+  }
+}
+
+@keyframes incline-side-chest-contract {
+  0%, 100% {
+    background: rgba(0, 246, 237, 0.08);
+    border-color: var(--cyan);
+    box-shadow: 0 0 6px rgba(0, 246, 237, 0.15);
+    transform: rotate(-30deg) scaleY(1);
+  }
+  42%, 55% {
+    background: rgba(255, 60, 0, 0.18);
+    border-color: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    transform: rotate(-30deg) scaleY(0.85);
+  }
+  82% {
+    background: rgba(0, 246, 237, 0.3);
+    border-color: var(--cyan);
+    box-shadow: 0 0 12px var(--cyan);
+    transform: rotate(-30deg) scaleY(1.08);
+  }
+}
+
+/* ==========================================================================
+   BACK SQUAT MOTION DYNAMICS
+   ========================================================================== */
+.squat-mode .squat-rack-legs-front {
+  position: absolute;
+  bottom: 5px;
+  width: 80px;
+  height: 75px;
+  border-left: 2px dashed rgba(255, 255, 255, 0.15);
+  border-right: 2px dashed rgba(255, 255, 255, 0.15);
+  z-index: 1;
+}
+
+.squat-mode .squat-lifter-torso-front {
+  position: absolute;
+  bottom: 15px;
+  left: calc(50% - 10px);
+  width: 20px;
+  height: 35px;
+  border-radius: 4px;
+  background: rgba(0, 246, 237, 0.08);
+  border: 1.5px solid var(--cyan);
+  z-index: 2;
+  transform-origin: center bottom;
+  animation: squat-torso-front-scale 3s infinite ease-in-out;
+}
+
+.squat-mode .squat-lifter-thighs-front {
+  position: absolute;
+  bottom: 5px;
+  left: calc(50% - 18px);
+  width: 36px;
+  height: 12px;
+  border-left: 3.5px solid var(--cyan);
+  border-right: 3.5px solid var(--cyan);
+  border-radius: 4px 4px 0 0;
+  z-index: 2;
+  transform-origin: center bottom;
+  animation: squat-thighs-front-bend 3s infinite ease-in-out;
+}
+
+.squat-mode .squat-barbell-front {
+  position: absolute;
+  width: 110px;
+  bottom: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  animation: squat-barbell-motion-front 3s infinite ease-in-out;
+}
+
+.squat-mode .squat-rack-legs-side {
+  position: absolute;
+  bottom: 5px;
+  left: 45px;
+  width: 10px;
+  height: 75px;
+  border-left: 2px dashed rgba(255, 255, 255, 0.15);
+  z-index: 1;
+}
+
+.squat-mode .squat-lifter-head-side {
+  position: absolute;
+  bottom: 32px;
+  left: 40px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(0, 246, 237, 0.08);
+  border: 1.5px solid var(--cyan);
+  z-index: 2;
+  animation: squat-head-motion-side 3s infinite ease-in-out;
+}
+
+.squat-mode .squat-lifter-torso-side {
+  position: absolute;
+  bottom: 20px;
+  left: 34px;
+  width: 8px;
+  height: 26px;
+  background: rgba(0, 246, 237, 0.08);
+  border: 1.5px solid var(--cyan);
+  border-radius: 4px;
+  z-index: 2;
+  transform-origin: center bottom;
+  animation: squat-torso-side-lean 3s infinite ease-in-out;
+}
+
+.squat-mode .squat-lifter-thigh-side {
+  position: absolute;
+  bottom: 16px;
+  left: 34px;
+  width: 25px;
+  height: 18px;
+  border-top: 2.5px solid var(--cyan);
+  z-index: 2;
+  transform-origin: left top;
+  animation: squat-thigh-side-hinge 3s infinite ease-in-out;
+}
+
+.squat-mode .squat-lifter-calf-side {
+  position: absolute;
+  bottom: 5px;
+  left: 41px;
+  width: 10px;
+  height: 19px;
+  border-right: 2.5px solid var(--cyan);
+  z-index: 2;
+  transform-origin: right bottom;
+  animation: squat-calf-side-angle 3s infinite ease-in-out;
+}
+
+.squat-mode .squat-barbell-side {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  left: 40px;
+  bottom: 27px;
+  animation: squat-barbell-motion-side 3s infinite ease-in-out;
+}
+
+@keyframes squat-barbell-motion-front {
+  0%, 100% {
+    transform: translate3d(0, -35px, 0);
+    animation-timing-function: cubic-bezier(0.4, 0, 1, 1);
+  }
+  42% {
+    transform: translate3d(0, 0, 0);
+    animation-timing-function: linear;
+  }
+  55% {
+    transform: translate3d(0, 0, 0);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+  82% {
+    transform: translate3d(0, -35px, 0);
+    animation-timing-function: linear;
+  }
+}
+
+@keyframes squat-barbell-motion-side {
+  0%, 100% {
+    transform: translate3d(0, -35px, 0);
+    animation-timing-function: cubic-bezier(0.4, 0, 1, 1);
+  }
+  42% {
+    transform: translate3d(0, 0, 0);
+    animation-timing-function: linear;
+  }
+  55% {
+    transform: translate3d(0, 0, 0);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+  82% {
+    transform: translate3d(0, -35px, 0);
+    animation-timing-function: linear;
+  }
+}
+
+@keyframes squat-torso-front-scale {
+  0%, 100% {
+    transform: translate3d(0, -15px, 0) scaleY(1);
+    background: rgba(0, 246, 237, 0.08);
+    border-color: var(--cyan);
+  }
+  42%, 55% {
+    transform: translate3d(0, 0, 0) scaleY(0.8);
+    background: rgba(255, 60, 0, 0.18);
+    border-color: var(--accent);
+  }
+  82% {
+    transform: translate3d(0, -15px, 0) scaleY(1.05);
+    background: rgba(0, 246, 237, 0.3);
+    border-color: var(--cyan);
+  }
+}
+
+@keyframes squat-thighs-front-bend {
+  0%, 100% {
+    transform: scaleY(2.167);
+  }
+  42%, 55% {
+    transform: scaleY(1);
+  }
+  82% {
+    transform: scaleY(2.167);
+  }
+}
+
+@keyframes squat-head-motion-side {
+  0%, 100% {
+    transform: translate3d(8px, -36px, 0);
+  }
+  42%, 55% {
+    transform: translate3d(0, 0, 0);
+  }
+  82% {
+    transform: translate3d(8px, -36px, 0);
+  }
+}
+
+@keyframes squat-torso-side-lean {
+  0%, 100% {
+    transform: translate3d(13px, -20px, 0) rotate(0deg);
+    background: rgba(0, 246, 237, 0.08);
+    border-color: var(--cyan);
+  }
+  42%, 55% {
+    transform: translate3d(0, 0, 0) rotate(-25deg);
+    background: rgba(255, 60, 0, 0.18);
+    border-color: var(--accent);
+  }
+  82% {
+    transform: translate3d(13px, -20px, 0) rotate(0deg);
+    background: rgba(0, 246, 237, 0.3);
+    border-color: var(--cyan);
+  }
+}
+
+@keyframes squat-thigh-side-hinge {
+  0%, 100% {
+    transform: rotate(50deg) translate3d(13px, -7px, 0);
+  }
+  42%, 55% {
+    transform: rotate(115deg) translate3d(0, 0, 0);
+  }
+  82% {
+    transform: rotate(50deg) translate3d(13px, -7px, 0);
+  }
+}
+
+@keyframes squat-calf-side-angle {
+  0%, 100% {
+    transform: rotate(0deg) translate3d(6px, 0, 0);
+  }
+  42%, 55% {
+    transform: rotate(20deg) translate3d(0, 0, 0);
+  }
+  82% {
+    transform: rotate(0deg) translate3d(6px, 0, 0);
+  }
+}
+
+/* ==========================================================================
+   DEADLIFT MOTION DYNAMICS
+   ========================================================================== */
+.deadlift-mode .deadlift-platform-front {
+  position: absolute;
+  bottom: 5px;
+  width: 90px;
+  height: 3px;
+  background: #3a3d52;
+  z-index: 1;
+}
+
+.deadlift-mode .deadlift-lifter-torso-front {
+  position: absolute;
+  bottom: 8px;
+  left: calc(50% - 9px);
+  width: 18px;
+  height: 40px;
+  border-radius: 3px;
+  background: rgba(0, 246, 237, 0.08);
+  border: 1.5px solid var(--cyan);
+  z-index: 2;
+  transform-origin: center bottom;
+  animation: deadlift-torso-front-scale 3s infinite ease-in-out;
+}
+
+.deadlift-mode .deadlift-lifter-arms-front {
+  position: absolute;
+  bottom: 8px;
+  left: calc(50% - 15px);
+  width: 30px;
+  height: 32px;
+  border-left: 2px solid var(--cyan);
+  border-right: 2px solid var(--cyan);
+  z-index: 2;
+  transform-origin: center bottom;
+  animation: deadlift-arms-front-pull 3s infinite ease-in-out;
+}
+
+.deadlift-mode .deadlift-barbell-front {
+  position: absolute;
+  width: 110px;
+  bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  animation: deadlift-barbell-motion-front 3s infinite ease-in-out;
+}
+
+.deadlift-mode .deadlift-platform-side {
+  position: absolute;
+  bottom: 5px;
+  left: 15px;
+  width: 70px;
+  height: 3px;
+  background: #3a3d52;
+  z-index: 1;
+}
+
+.deadlift-mode .deadlift-lifter-hips-side {
+  position: absolute;
+  bottom: 18px;
+  left: 42px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(0, 246, 237, 0.08);
+  border: 1.5px solid var(--cyan);
+  z-index: 2;
+  animation: deadlift-hips-motion-side 3s infinite ease-in-out;
+}
+
+.deadlift-mode .deadlift-lifter-torso-side {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 30px;
+  height: 8px;
+  background: rgba(0, 246, 237, 0.08);
+  border: 1.5px solid var(--cyan);
+  border-radius: 3px;
+  z-index: 2;
+  transform-origin: right center;
+  animation: deadlift-torso-side-hinge 3s infinite ease-in-out;
+}
+
+.deadlift-mode .deadlift-lifter-thigh-side {
+  position: absolute;
+  bottom: 8px;
+  left: 42px;
+  width: 12px;
+  height: 14px;
+  border-top: 2.5px solid var(--cyan);
+  z-index: 2;
+  transform-origin: left top;
+  animation: deadlift-thigh-side-drive 3s infinite ease-in-out;
+}
+
+.deadlift-mode .deadlift-lifter-calf-side {
+  position: absolute;
+  bottom: 5px;
+  left: 48px;
+  width: 3px;
+  height: 12px;
+  background: var(--cyan);
+  z-index: 2;
+}
+
+.deadlift-mode .deadlift-lifter-arm-side {
+  position: absolute;
+  bottom: 8px;
+  left: 36px;
+  width: 2px;
+  height: 25px;
+  background: var(--cyan);
+  z-index: 2;
+  transform-origin: top center;
+  animation: deadlift-arm-side-hang 3s infinite ease-in-out;
+}
+
+.deadlift-mode .deadlift-barbell-side {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  left: 28px;
+  bottom: 8px;
+  animation: deadlift-barbell-motion-side 3s infinite ease-in-out;
+}
+
+@keyframes deadlift-barbell-motion-front {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+    animation-timing-function: cubic-bezier(0.4, 0, 1, 1);
+  }
+  42% {
+    transform: translate3d(0, 0, 0);
+    animation-timing-function: linear;
+  }
+  55% {
+    transform: translate3d(0, 0, 0);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+  82% {
+    transform: translate3d(0, 30px, 0);
+    animation-timing-function: linear;
+  }
+}
+
+@keyframes deadlift-barbell-motion-side {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+    animation-timing-function: cubic-bezier(0.4, 0, 1, 1);
+  }
+  42% {
+    transform: translate3d(0, 0, 0);
+    animation-timing-function: linear;
+  }
+  55% {
+    transform: translate3d(0, 0, 0);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+  82% {
+    transform: translate3d(6px, 30px, 0);
+    animation-timing-function: linear;
+  }
+}
+
+@keyframes deadlift-torso-front-scale {
+  0%, 100% {
+    transform: scaleY(0.7) translate3d(0, 0, 0);
+    background: rgba(255, 60, 0, 0.18);
+    border-color: var(--accent);
+    box-shadow: 0 0 6px var(--accent-glow);
+  }
+  42%, 55% {
+    transform: scaleY(0.7) translate3d(0, 0, 0);
+    background: rgba(255, 60, 0, 0.18);
+    border-color: var(--accent);
+  }
+  82% {
+    transform: scaleY(1.05) translate3d(0, 30px, 0);
+    background: rgba(0, 246, 237, 0.3);
+    border-color: var(--cyan);
+    box-shadow: 0 0 12px var(--cyan);
+  }
+}
+
+@keyframes deadlift-arms-front-pull {
+  0%, 100% {
+    transform: scaleY(0.78) translate3d(0, 0, 0);
+  }
+  42%, 55% {
+    transform: scaleY(0.78) translate3d(0, 0, 0);
+  }
+  82% {
+    transform: scaleY(1) translate3d(0, 30px, 0);
+  }
+}
+
+@keyframes deadlift-torso-side-hinge {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(45deg);
+    background: rgba(255, 60, 0, 0.18);
+    border-color: var(--accent);
+  }
+  42%, 55% {
+    transform: translate3d(0, 0, 0) rotate(45deg);
+    background: rgba(255, 60, 0, 0.18);
+    border-color: var(--accent);
+  }
+  82% {
+    transform: translate3d(15px, 18px, 0) rotate(-70deg);
+    background: rgba(0, 246, 237, 0.3);
+    border-color: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+  }
+}
+
+@keyframes deadlift-hips-motion-side {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  42%, 55% {
+    transform: translate3d(0, 0, 0);
+  }
+  82% {
+    transform: translate3d(0, 20px, 0);
+  }
+}
+
+@keyframes deadlift-thigh-side-drive {
+  0%, 100% {
+    transform: rotate(115deg) translate3d(0, 0, 0);
+  }
+  42%, 55% {
+    transform: rotate(115deg) translate3d(0, 0, 0);
+  }
+  82% {
+    transform: rotate(45deg) translate3d(0, 17px, 0);
+  }
+}
+
+@keyframes deadlift-arm-side-hang {
+  0%, 100% {
+    transform: rotate(18deg) translate3d(0, 0, 0);
+  }
+  82% {
+    transform: rotate(0deg) translate3d(-2px, 30px, 0);
+  }
+}
+
+/* ================================================
+   Step 2 Overview Chart Styles
+   ================================================ */
+.overview-chart-wrapper {
+  background: rgba(4, 5, 15, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+  padding: 6px;
+  box-sizing: border-box;
+}
+
+.overview-chart-canvas {
+  display: block;
+}
+
+/* -webkit- prefixes overrides for biomechanical animation selectors */
+.front-view .bench-press-torso { -webkit-animation: chest-contract 3s infinite ease-in-out; }
+.front-view .bench-press-barbell { -webkit-animation: bench-press-motion 3s infinite ease-in-out; }
+.side-view-panel .side-lifter-torso { -webkit-animation: side-chest-contract 3s infinite ease-in-out; }
+.side-view-panel .side-barbell { -webkit-animation: side-barbell-motion 3s infinite ease-in-out; }
+
+.front-view .incline-torso-front { -webkit-animation: incline-chest-contract 3s infinite ease-in-out; }
+.front-view .incline-barbell-front { -webkit-animation: incline-bench-press-motion 3s infinite ease-in-out; }
+.side-view-panel .incline-lifter-torso { -webkit-animation: incline-side-chest-contract 3s infinite ease-in-out; }
+.side-view-panel .incline-barbell-side { -webkit-animation: incline-side-barbell-motion 3s infinite ease-in-out; }
+
+.front-view .squat-torso-front { -webkit-animation: squat-torso-front-scale 3s infinite ease-in-out; }
+.front-view .squat-thighs-front { -webkit-animation: squat-thighs-front-bend 3s infinite ease-in-out; }
+.front-view .squat-barbell-front { -webkit-animation: squat-barbell-motion-front 3s infinite ease-in-out; }
+.side-view-panel .squat-head-side { -webkit-animation: squat-head-motion-side 3s infinite ease-in-out; }
+.side-view-panel .squat-torso-side { -webkit-animation: squat-torso-side-lean 3s infinite ease-in-out; }
+.side-view-panel .squat-thigh-side { -webkit-animation: squat-thigh-side-hinge 3s infinite ease-in-out; }
+.side-view-panel .squat-calf-side { -webkit-animation: squat-calf-side-angle 3s infinite ease-in-out; }
+.side-view-panel .squat-barbell-side { -webkit-animation: squat-barbell-motion-side 3s infinite ease-in-out; }
+
+.front-view .deadlift-torso-front { -webkit-animation: deadlift-torso-front-scale 3s infinite ease-in-out; }
+.front-view .deadlift-arms-front { -webkit-animation: deadlift-arms-front-pull 3s infinite ease-in-out; }
+.front-view .deadlift-barbell-front { -webkit-animation: deadlift-barbell-motion-front 3s infinite ease-in-out; }
+.side-view-panel .deadlift-hips-side { -webkit-animation: deadlift-hips-motion-side 3s infinite ease-in-out; }
+.side-view-panel .deadlift-torso-side { -webkit-animation: deadlift-torso-side-hinge 3s infinite ease-in-out; }
+.side-view-panel .deadlift-thigh-side { -webkit-animation: deadlift-thigh-side-drive 3s infinite ease-in-out; }
+.side-view-panel .deadlift-arm-side { -webkit-animation: deadlift-arm-side-hang 3s infinite ease-in-out; }
+.side-view-panel .deadlift-barbell-side { -webkit-animation: deadlift-barbell-motion-side 3s infinite ease-in-out; }
+
+.dynamics-phase { -webkit-animation: phase-label-pulse 3s infinite steps(1); }
+.dynamics-phase::before { -webkit-animation: phase-text-anim 3s infinite steps(1); }
+
+.settings-gear-btn.sparkle-active {
+  -webkit-animation: gear-sparkle-spin 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+}
+
+/* Duplicated keyframes with -webkit- prefix to resolve WKWebView dynamic renderer limitations */
+@-webkit-keyframes gear-sparkle-spin {
+  0% { -webkit-transform: rotate(0deg) scale(1); box-shadow: 0 0 0px var(--accent); }
+  50% { -webkit-transform: rotate(180deg) scale(1.3); box-shadow: 0 0 25px var(--accent); background: rgba(255, 140, 26, 0.2); }
+  100% { -webkit-transform: rotate(360deg) scale(1); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+}
+
+@-webkit-keyframes bench-press-motion {
+  0%, 100% { -webkit-transform: translate3d(0, -27px, 0); }
+  42% { -webkit-transform: translate3d(0, 0, 0); }
+  55% { -webkit-transform: translate3d(0, 0, 0); }
+  82% { -webkit-transform: translate3d(0, -27px, 0); }
+}
+
+@-webkit-keyframes side-barbell-motion {
+  0%, 100% { -webkit-transform: translate3d(0, -27px, 0); }
+  42% { -webkit-transform: translate3d(14px, 0, 0); }
+  55% { -webkit-transform: translate3d(14px, 0, 0); }
+  82% { -webkit-transform: translate3d(0, -27px, 0); }
+}
+
+@-webkit-keyframes chest-contract {
+  0%, 100% { -webkit-transform: scaleY(1); }
+  42%, 55% { -webkit-transform: scaleY(0.85); }
+  82% { -webkit-transform: scaleY(1.08); }
+}
+
+@-webkit-keyframes side-chest-contract {
+  0%, 100% { -webkit-transform: scaleY(1); }
+  42%, 55% { -webkit-transform: scaleY(0.8125); }
+  82% { -webkit-transform: scaleY(1.0625); }
+}
+
+@-webkit-keyframes incline-bench-press-motion {
+  0%, 100% { -webkit-transform: translate3d(0, -20px, 0); }
+  42% { -webkit-transform: translate3d(0, 0, 0); }
+  55% { -webkit-transform: translate3d(0, 0, 0); }
+  82% { -webkit-transform: translate3d(0, -20px, 0); }
+}
+
+@-webkit-keyframes incline-side-barbell-motion {
+  0%, 100% { -webkit-transform: translate3d(0, -16px, 0); }
+  42% { -webkit-transform: translate3d(14px, 0, 0); }
+  55% { -webkit-transform: translate3d(14px, 0, 0); }
+  82% { -webkit-transform: translate3d(0, -16px, 0); }
+}
+
+@-webkit-keyframes incline-chest-contract {
+  0%, 100% { -webkit-transform: scaleY(1); }
+  42%, 55% { -webkit-transform: scaleY(0.8); }
+  82% { -webkit-transform: scaleY(1.05); }
+}
+
+@-webkit-keyframes incline-side-chest-contract {
+  0%, 100% { -webkit-transform: scaleY(1); }
+  42%, 55% { -webkit-transform: scaleY(0.75); }
+  82% { -webkit-transform: scaleY(1.06); }
+}
+
+@-webkit-keyframes squat-barbell-motion-front {
+  0%, 100% { -webkit-transform: translate3d(0, -35px, 0); }
+  42% { -webkit-transform: translate3d(0, 0, 0); }
+  55% { -webkit-transform: translate3d(0, 0, 0); }
+  82% { -webkit-transform: translate3d(0, -35px, 0); }
+}
+
+@-webkit-keyframes squat-barbell-motion-side {
+  0%, 100% { -webkit-transform: translate3d(0, -35px, 0); }
+  42% { -webkit-transform: translate3d(0, 0, 0); }
+  55% { -webkit-transform: translate3d(0, 0, 0); }
+  82% { -webkit-transform: translate3d(0, -35px, 0); }
+}
+
+@-webkit-keyframes squat-torso-front-scale {
+  0%, 100% { -webkit-transform: translate3d(0, -15px, 0) scaleY(1); }
+  42%, 55% { -webkit-transform: translate3d(0, 0, 0) scaleY(0.7); }
+  82% { -webkit-transform: translate3d(0, -15px, 0) scaleY(1.05); }
+}
+
+@-webkit-keyframes squat-thighs-front-bend {
+  0%, 100% { -webkit-transform: scaleY(2.167); }
+  42%, 55% { -webkit-transform: scaleY(1); }
+  82% { -webkit-transform: scaleY(2.167); }
+}
+
+@-webkit-keyframes squat-head-motion-side {
+  0%, 100% { -webkit-transform: translate3d(8px, -36px, 0); }
+  42% { -webkit-transform: translate3d(0, -3px, 0); }
+  55% { -webkit-transform: translate3d(0, -3px, 0); }
+  82% { -webkit-transform: translate3d(8px, -36px, 0); }
+}
+
+@-webkit-keyframes squat-torso-side-lean {
+  0%, 100% { -webkit-transform: translate3d(13px, -20px, 0) rotate(0deg); }
+  42%, 55% { -webkit-transform: translate3d(3px, -4px, 0) rotate(35deg); }
+  82% { -webkit-transform: translate3d(13px, -20px, 0) rotate(0deg); }
+}
+
+@-webkit-keyframes squat-thigh-side-hinge {
+  0%, 100% { -webkit-transform: rotate(50deg) translate3d(13px, -7px, 0); }
+  42%, 55% { -webkit-transform: rotate(-10deg) translate3d(3px, 0, 0); }
+  82% { -webkit-transform: rotate(50deg) translate3d(13px, -7px, 0); }
+}
+
+@-webkit-keyframes squat-calf-side-angle {
+  0%, 100% { -webkit-transform: rotate(0deg) translate3d(6px, 0, 0); }
+  42%, 55% { -webkit-transform: rotate(25deg) translate3d(0, 0, 0); }
+  82% { -webkit-transform: rotate(0deg) translate3d(6px, 0, 0); }
+}
+
+@-webkit-keyframes deadlift-barbell-motion-front {
+  0%, 100% { -webkit-transform: translate3d(0, 0, 0); }
+  42% { -webkit-transform: translate3d(0, 0, 0); }
+  55% { -webkit-transform: translate3d(0, 0, 0); }
+  82% { -webkit-transform: translate3d(0, 30px, 0); }
+}
+
+@-webkit-keyframes deadlift-barbell-motion-side {
+  0%, 100% { -webkit-transform: translate3d(0, 0, 0); }
+  42% { -webkit-transform: translate3d(0, 0, 0); }
+  55% { -webkit-transform: translate3d(0, 0, 0); }
+  82% { -webkit-transform: translate3d(6px, 30px, 0); }
+}
+
+@-webkit-keyframes deadlift-torso-front-scale {
+  0%, 100% { -webkit-transform: scaleY(0.7) translate3d(0, 0, 0); }
+  42%, 55% { -webkit-transform: scaleY(0.7) translate3d(0, 0, 0); }
+  82% { -webkit-transform: scaleY(1.05) translate3d(0, 30px, 0); }
+}
+
+@-webkit-keyframes deadlift-arms-front-pull {
+  0%, 100% { -webkit-transform: scaleY(0.78) translate3d(0, 0, 0); }
+  42%, 55% { -webkit-transform: scaleY(0.78) translate3d(0, 0, 0); }
+  82% { -webkit-transform: scaleY(1) translate3d(0, 30px, 0); }
+}
+
+@-webkit-keyframes deadlift-torso-side-hinge {
+  0%, 100% { -webkit-transform: translate3d(0, 0, 0) rotate(45deg); }
+  42%, 55% { -webkit-transform: translate3d(0, 0, 0) rotate(45deg); }
+  82% { -webkit-transform: translate3d(15px, 18px, 0) rotate(-70deg); }
+}
+
+@-webkit-keyframes deadlift-hips-motion-side {
+  0%, 100% { -webkit-transform: translate3d(0, 0, 0); }
+  42%, 55% { -webkit-transform: translate3d(0, 0, 0); }
+  82% { -webkit-transform: translate3d(0, 20px, 0); }
+}
+
+@-webkit-keyframes deadlift-thigh-side-drive {
+  0%, 100% { -webkit-transform: rotate(115deg) translate3d(0, 0, 0); }
+  42%, 55% { -webkit-transform: rotate(115deg) translate3d(0, 0, 0); }
+  82% { -webkit-transform: rotate(45deg) translate3d(0, 17px, 0); }
+}
+
+@-webkit-keyframes deadlift-arm-side-hang {
+  0%, 100% { -webkit-transform: rotate(18deg) translate3d(0, 0, 0); }
+  42%, 55% { -webkit-transform: rotate(18deg) translate3d(0, 0, 0); }
+  82% { -webkit-transform: rotate(0deg) translate3d(-2px, 30px, 0); }
+}
+
+/* ==========================================================================
+   iOS NATIVE LOOK & FEEL OPTIMIZATIONS
+   ========================================================================== */
+
+/* 1. Touch & Scroll Optimizations */
+.ex-manager-list, .history-list, .bodyweight-history-list, .date-history-list {
+  -webkit-overflow-scrolling: touch; /* iOS momentum inertia scroll */
+}
+
+/* Click/Touch Responsiveness & Disable selection overlays */
+button, .btn, .chip, .stat, header, .card-title, .top-bar span, .muscle-tab {
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation; /* Eliminate double-tap 300ms delays */
+}
+
+/* 2. Tactile Press Feedback Animations */
+.btn:active, .muscle-tab:active, .stat:active, .chip:active, .overview-item:active {
+  transform: scale(0.96);
+  transition: transform 0.08s ease;
+}
+
+/* 3. iOS View-to-View Transitions (Horizontal Slide) */
+.app {
+  position: relative;
+  overflow-x: hidden;
+}
+
+.view {
+  display: none;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform, opacity;
+}
+
+.view.active {
+  display: block;
+  position: relative; /* target view sizes container height dynamically */
+}
+
+/* Forward transition (push): New view enters from right, old exits to left */
+.slide-push-enter {
+  display: block !important;
+  animation: iosPushEnter 0.35s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+.slide-push-exit {
+  display: block !important;
+  position: absolute !important;
+  animation: iosPushExit 0.35s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+/* Backward transition (pop): New view enters from left, old exits to right */
+.slide-pop-enter {
+  display: block !important;
+  animation: iosPopEnter 0.35s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+.slide-pop-exit {
+  display: block !important;
+  position: absolute !important;
+  animation: iosPopExit 0.35s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+@keyframes iosPushEnter {
+  0% { transform: translate3d(100%, 0, 0); opacity: 0.9; }
+  100% { transform: translate3d(0, 0, 0); opacity: 1; }
+}
+@keyframes iosPushExit {
+  0% { transform: translate3d(0, 0, 0); opacity: 1; }
+  100% { transform: translate3d(-25%, 0, 0); opacity: 0.5; }
+}
+
+@keyframes iosPopEnter {
+  0% { transform: translate3d(-25%, 0, 0); opacity: 0.5; }
+  100% { transform: translate3d(0, 0, 0); opacity: 1; }
+}
+@keyframes iosPopExit {
+  0% { transform: translate3d(0, 0, 0); opacity: 1; }
+  100% { transform: translate3d(100%, 0, 0); opacity: 0.9; }
+}
+
+/* 4. Settings Bottom Sheet Layout styling */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(2, 3, 11, 0);
+  z-index: 9999;
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  transition: background-color 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease;
+  align-items: flex-end; /* Pin to bottom */
+  justify-content: center;
+}
+
+.modal-overlay.active {
+  display: flex;
+  background: rgba(2, 3, 11, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 500px;
+  background: var(--card-bg);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0; /* Rounded top only */
+  padding: 16px 24px calc(24px + env(safe-area-inset-bottom)); /* padding accounts for dynamic bottom bar safe margin */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: none;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transform: translateY(100%);
+  transition: transform 0.32s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.modal-overlay.active .modal-card {
+  transform: translateY(0);
+}
+
+/* iOS bottom sheet drag indicator handle */
+.modal-handle {
+  width: 38px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 99px;
+  margin: -6px auto 10px;
+}
+
+/* 5. Custom Bottom-sheet Grid & Form styling */
+.setting-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.setting-col-skin {
+  flex: 1.2;
+}
+
+.setting-col-beats {
+  flex: 0.8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.setting-col-beats label {
+  white-space: nowrap;
+}
+
+.setting-inline-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
+.setting-inline-group input {
+  margin-bottom: 0;
+  flex: 1;
+}
+
+.setting-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.setting-item label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.danger-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 16px;
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+  flex-direction: row !important;
+}
+
+/* iOS Toggle Switch Switch styling */
+.toggle-switch-wrapper {
+  position: relative;
+  width: 51px;
+  height: 31px;
+}
+
+.ios-switch-label {
+  display: block;
+  width: 51px;
+  height: 31px;
+  background-color: rgba(255, 255, 255, 0.12);
+  border-radius: 100px;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.ios-switch-inner {
+  display: block;
+  width: 25px;
+  height: 25px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+input[type="checkbox"]:checked + .ios-switch-label {
+  background-color: var(--success);
+}
+
+input[type="checkbox"]:checked + .ios-switch-label .ios-switch-inner {
+  transform: translate3d(20px, 0, 0);
+}
+
+/* Native select menu styling overrides for settings */
+.unit-select-native {
+  margin-bottom: 0;
+  min-height: 36px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  border-radius: var(--radius-sm);
+  background: #0d0e1b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+  outline: none;
+}
+
+/* 6. Floating iOS Safari Install PWA Banner */
+.ios-install-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+  z-index: 10000;
+  background: rgba(12, 14, 33, 0.88);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transform: translateY(100%);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.4s ease;
+}
+
+.ios-install-banner-content {
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.ios-install-close-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.ios-install-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.ios-install-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-highlight);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.ios-install-text {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.ios-install-steps {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-main);
+  padding-left: 20px;
+}
+
+.ios-install-steps li {
+  margin-bottom: 6px;
+}
+
+.ios-share-icon, .ios-plus-icon {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  vertical-align: middle;
+  color: var(--cyan);
+}
+
