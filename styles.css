@@ -602,6 +602,22 @@ input[type="text"]:focus, input[type="search"]:focus {
     color: var(--warning);
 }
 
+.console-line.download-msg {
+    color: var(--accent);
+}
+
+.console-line.timeout-msg {
+    color: var(--warning);
+}
+
+.console-line.failed-msg {
+    color: var(--danger);
+}
+
+.console-line.info-msg {
+    color: #b388ff;
+}
+
 /* Results Display Panel */
 .results-header-grid {
     display: flex;

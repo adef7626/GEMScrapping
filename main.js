@@ -512,7 +512,24 @@ document.addEventListener("DOMContentLoaded", () => {
     
     function logToConsole(text, type = "log") {
         const line = document.createElement("div");
-        line.className = `console-line ${type}-msg`;
+        
+        // Dynamic color coding based on message content keywords
+        let dynamicType = type;
+        const lowerText = text.toLowerCase();
+        
+        if (lowerText.includes("failed") || lowerText.includes("error") || lowerText.includes("exception") || lowerText.includes("lost") || lowerText.includes("discarded")) {
+            dynamicType = "failed";
+        } else if (lowerText.includes("timed out") || lowerText.includes("timeout") || lowerText.includes("warning")) {
+            dynamicType = "timeout";
+        } else if (lowerText.includes("downloading") || lowerText.includes("downloaded") || lowerText.includes("saved successfully") || lowerText.includes("uploading") || lowerText.includes("loaded")) {
+            dynamicType = "download";
+        } else if (lowerText.includes("success") || lowerText.includes("finished") || lowerText.includes("complete") || lowerText.includes("found")) {
+            dynamicType = "success";
+        } else if (lowerText.includes("starting") || lowerText.includes("establishing") || lowerText.includes("navigating") || lowerText.includes("submitting")) {
+            dynamicType = "info";
+        }
+        
+        line.className = `console-line ${dynamicType}-msg`;
         line.textContent = text;
         terminalConsole.appendChild(line);
         terminalConsole.scrollTop = terminalConsole.scrollHeight;
