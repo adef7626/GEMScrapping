@@ -120,15 +120,27 @@ body {
     width: 8px;
     height: 8px;
     border-radius: 50%;
+    transition: var(--transition);
 }
 
 .status-indicator.idle {
-    background-color: var(--text-muted);
+    background-color: var(--info);
+    box-shadow: 0 0 8px var(--info);
+}
+
+.status-indicator.online {
+    background-color: var(--success);
+    box-shadow: 0 0 8px var(--success);
+}
+
+.status-indicator.offline {
+    background-color: var(--danger);
+    box-shadow: 0 0 8px var(--danger);
 }
 
 .status-indicator.running {
-    background-color: var(--success);
-    box-shadow: 0 0 8px var(--success);
+    background-color: var(--warning);
+    box-shadow: 0 0 8px var(--warning);
     animation: flash 1s infinite alternate;
 }
 
@@ -952,6 +964,50 @@ input[type="text"]:focus, input[type="search"]:focus {
     display: flex;
     align-items: center;
     justify-content: flex-start;
+}
+
+/* Connection Warning Banner Styling */
+.warning-banner {
+    background: linear-gradient(90deg, rgba(255, 0, 85, 0.95), rgba(138, 43, 226, 0.95));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    padding: 12px 0;
+    font-size: 13px;
+    z-index: 1000;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(255, 0, 85, 0.25);
+    transition: var(--transition);
+}
+
+.warning-banner.hide {
+    display: none !important;
+}
+
+.warning-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.warning-icon {
+    font-size: 20px;
+    animation: pulse-glow 1.5s infinite alternate;
+}
+
+.warning-text {
+    line-height: 1.6;
+}
+
+.terminal-command {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    word-break: break-all;
+    user-select: all;
 }
 
 

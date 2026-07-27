@@ -11,6 +11,17 @@
 <body>
     <div class="glow-bg"></div>
     
+    <!-- Connection Error Warning Banner -->
+    <div id="offline-banner" class="warning-banner hide">
+        <div class="container warning-banner-content">
+            <span class="warning-icon">⚠️</span>
+            <div class="warning-text">
+                <strong>Local Backend Server Offline!</strong> To run crawls and parse tenders, please start your local Python server by running: 
+                <code class="terminal-command">uv run --with fastapi,uvicorn,pandas,openpyxl,playwright,pypdf,python-multipart app.py</code>
+            </div>
+        </div>
+    </div>
+    
     <header class="app-header">
         <div class="container header-container">
             <div class="logo-area">

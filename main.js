@@ -526,4 +526,38 @@ document.addEventListener("DOMContentLoaded", () => {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
     }
+
+    // --- Backend Connection Checking & Polling ---
+    const offlineBanner = document.getElementById("offline-banner");
+    
+    async function checkBackendStatus() {
+        const isRunning = globalStatusDot.classList.contains("running");
+        try {
+            // Ping the backend using a simple HEAD fetch to styles.css
+            const response = await fetch(getApiUrl("/styles.css"), { method: "HEAD" });
+            if (!isRunning) {
+                globalStatusDot.className = "status-indicator online";
+                globalStatusText.textContent = "Backend Connected";
+            }
+            if (offlineBanner) {
+                offlineBanner.classList.add("hide");
+            }
+            return true;
+        } catch (err) {
+            if (!isRunning) {
+                globalStatusDot.className = "status-indicator offline";
+                globalStatusText.textContent = "Backend Offline";
+            }
+            if (offlineBanner) {
+                offlineBanner.classList.remove("hide");
+            }
+            return false;
+        }
+    }
+
+    // Initial check
+    checkBackendStatus();
+    
+    // Poll connection status every 5 seconds
+    setInterval(checkBackendStatus, 5000);
 });
