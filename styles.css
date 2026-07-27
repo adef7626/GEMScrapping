@@ -73,6 +73,8 @@ body {
     top: 0;
     z-index: 100;
     padding: 16px 0;
+    /* iOS Web App safe area top padding */
+    padding-top: calc(16px + env(safe-area-inset-top, 0px));
 }
 
 .header-container {
@@ -777,6 +779,8 @@ input[type="text"]:focus, input[type="search"]:focus {
     border-top: 1px solid var(--border-color);
     background: rgba(11, 12, 16, 0.85);
     padding: 16px 0;
+    /* iOS Web App bottom safe area padding */
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
     text-align: center;
     font-size: 11px;
     color: var(--text-muted);

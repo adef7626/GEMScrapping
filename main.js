@@ -1,4 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // Register Service Worker for PWA / iOS standalone webapp support
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./sw.js")
+            .then(reg => console.log("Service Worker registered successfully:", reg.scope))
+            .catch(err => console.log("Service Worker registration failed:", err));
+    }
+
     // DOM Elements
     const dropZone = document.getElementById("drop-zone");
     const fileInput = document.getElementById("file-input");
@@ -62,9 +69,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Helper: Determine API URL (Absolute localhost if opened locally/GitHub Pages, otherwise relative)
     function getApiUrl(path) {
-        if (window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
+        const storedUrl = localStorage.getItem("backend_url");
+        if (storedUrl) {
+            const base = storedUrl.endsWith("/") ? storedUrl.slice(0, -1) : storedUrl;
+            return `${base}${path}`;
+        }
+        
+        // If opened from GitHub Pages or as a local static file (file://), default to localhost:8000
+        if (window.location.hostname.endsWith(".github.io") || window.location.protocol === "file:") {
             return `http://127.0.0.1:8000${path}`;
         }
+        
+        // If opened from local IP or local server hostname (like localhost:8000), use relative paths
         return path;
     }
 
@@ -577,4 +593,100 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Poll connection status every 5 seconds
     setInterval(checkBackendStatus, 5000);
+
+    // --- Backend Configuration Dropdown UI handlers ---
+    const configBtn = document.getElementById("configure-backend-btn");
+    const configDropdown = document.getElementById("backend-config-dropdown");
+    const configInput = document.getElementById("config-dropdown-input");
+    const saveConfigBtn = document.getElementById("save-config-dropdown-btn");
+    const resetConfigBtn = document.getElementById("reset-config-dropdown-btn");
+
+    if (configBtn && configDropdown) {
+        // Toggle dropdown visibility
+        configBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const isHidden = configDropdown.classList.contains("hide");
+            if (isHidden) {
+                // Populate current URL
+                const currentUrl = localStorage.getItem("backend_url") || (window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1" ? "http://127.0.0.1:8000" : window.location.origin);
+                configInput.value = currentUrl;
+                configDropdown.classList.remove("hide");
+            } else {
+                configDropdown.classList.add("hide");
+            }
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", (e) => {
+            if (configDropdown && !configDropdown.classList.contains("hide") && !configDropdown.contains(e.target) && e.target !== configBtn) {
+                configDropdown.classList.add("hide");
+            }
+        });
+
+        // Save custom backend URL
+        saveConfigBtn.addEventListener("click", () => {
+            let val = configInput.value.trim();
+            if (val) {
+                if (!val.startsWith("http://") && !val.startsWith("https://")) {
+                    val = "http://" + val;
+                }
+                localStorage.setItem("backend_url", val);
+                logToConsole(`Updated backend API endpoint to: ${val}`, "system");
+                configDropdown.classList.add("hide");
+                checkBackendStatus();
+            }
+        });
+
+        // Reset custom backend URL to default
+        resetConfigBtn.addEventListener("click", () => {
+            localStorage.removeItem("backend_url");
+            logToConsole("Reset backend API endpoint to default localhost", "system");
+            configDropdown.classList.add("hide");
+            checkBackendStatus();
+        });
+    }
+
+    // --- Mobile QR Code Loader ---
+    async function loadMobileQR() {
+        const qrCard = document.getElementById("mobile-qr-card");
+        const qrImg = document.getElementById("qr-code-img");
+        const qrLink = document.getElementById("mobile-url-link");
+        
+        if (!qrCard || !qrImg || !qrLink) return;
+        
+        // Only display the QR Code if on PC (localhost or file path)
+        const isPC = window.location.hostname === "localhost" || 
+                     window.location.hostname === "127.0.0.1" || 
+                     window.location.protocol === "file:";
+                     
+        if (!isPC) {
+            qrCard.classList.add("hide");
+            return;
+        }
+        
+        try {
+            const res = await fetch(getApiUrl("/api/network-info"));
+            const data = await res.json();
+            if (data.success && data.ips.length > 0) {
+                // Find primary IP or fallback
+                const hostIp = data.ips[0];
+                const mobileUrl = `http://${hostIp}:${data.port}/`;
+                
+                // Set text and href links
+                qrLink.textContent = mobileUrl;
+                qrLink.href = mobileUrl;
+                
+                // Request free QR code image from qrserver API
+                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(mobileUrl)}`;
+                
+                qrCard.classList.remove("hide");
+            }
+        } catch (err) {
+            console.log("Failed to load network info for QR code", err);
+            qrCard.classList.add("hide");
+        }
+    }
+    
+    // Load QR Code on startup
+    loadMobileQR();
 });

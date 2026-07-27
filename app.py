@@ -54,6 +54,57 @@ async def serve_root_js():
         return FileResponse(js_path, media_type="application/javascript")
     return HTMLResponse("JS file not found", status_code=404)
 
+@app.get("/manifest.json")
+async def serve_manifest():
+    path = os.path.join(BASE_DIR, "manifest.json")
+    if os.path.exists(path):
+        return FileResponse(path, media_type="application/json")
+    return HTMLResponse("Manifest not found", status_code=404)
+
+@app.get("/sw.js")
+async def serve_sw():
+    path = os.path.join(BASE_DIR, "sw.js")
+    if os.path.exists(path):
+        return FileResponse(path, media_type="application/javascript")
+    return HTMLResponse("Service Worker not found", status_code=404)
+
+@app.get("/icon.svg")
+async def serve_icon():
+    path = os.path.join(BASE_DIR, "icon.svg")
+    if os.path.exists(path):
+        return FileResponse(path, media_type="image/svg+xml")
+    return HTMLResponse("Icon not found", status_code=404)
+
+@app.get("/api/network-info")
+async def get_network_info():
+    """Returns local network IPs of the host PC for mobile connection."""
+    import socket
+    ips = []
+    try:
+        # Detect primary local IP
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        primary_ip = s.getsockname()[0]
+        s.close()
+        if primary_ip and primary_ip != "127.0.0.1":
+            ips.append(primary_ip)
+    except Exception:
+        pass
+        
+    try:
+        # Append hostname as local DNS fallback
+        hostname = socket.gethostname()
+        local_dns = f"{hostname}.local"
+        ips.append(local_dns)
+    except Exception:
+        pass
+        
+    return {
+        "success": True,
+        "ips": ips,
+        "port": 8000
+    }
+
 @app.post("/api/upload")
 async def upload_excel(file: UploadFile = File(...)):
     """Parses Excel and returns the list of categories found."""
@@ -392,4 +443,18 @@ async def export_html_results():
         return {"success": False, "error": str(e)}
 
 if __name__ == "__main__":
-    uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=False)
+    import socket
+    # Print local access URLs
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        print("\n" + "="*60)
+        print(f" GeM Bid Intelligence Server is running!")
+        print(f" Local Access:   http://localhost:8000")
+        print(f" Network Access: http://{ip}:8000")
+        print("="*60 + "\n")
+    except Exception:
+        pass
+    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=False)

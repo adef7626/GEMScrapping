@@ -2,7 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- iOS Web App / PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GeM Intel">
+    <link rel="apple-touch-icon" href="icon.svg">
+    <link rel="manifest" href="manifest.json">
+    
     <title>GeM Bid Analyzer & Intelligence Dashboard</title>
     <!-- Google Fonts: Outfit -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -18,6 +26,9 @@
             <div class="warning-text">
                 <strong>Local Backend Server Offline!</strong> To run crawls and parse tenders, please start your local Python server by running: 
                 <code class="terminal-command">uv run --with fastapi,uvicorn,pandas,openpyxl,playwright,pypdf,python-multipart app.py</code>
+                <div style="margin-top: 8px; font-size: 12px; opacity: 0.95;">
+                    Using a mobile device or other computer? Click the gear icon ⚙️ in the top right to configure your PC's IP address (e.g. <code>http://192.168.X.X:8000</code>).
+                </div>
             </div>
         </div>
     </div>
@@ -31,9 +42,20 @@
                     <p>Automated Tender Extraction & Relaxation Analyzer</p>
                 </div>
             </div>
-            <div class="header-status">
+            <div class="header-status" style="position: relative;">
                 <span class="status-indicator idle" id="global-status-dot"></span>
                 <span class="status-label" id="global-status-text">System Ready</span>
+                <button id="configure-backend-btn" style="background: none; border: none; cursor: pointer; font-size: 13px; padding: 0; margin-left: 6px; color: var(--text-muted); display: inline-flex; align-items: center;" title="Configure Backend IP/URL">⚙️</button>
+                
+                <!-- Configure IP popup dropdown -->
+                <div id="backend-config-dropdown" class="config-dropdown hide" style="position: absolute; right: 0; top: 100%; margin-top: 8px; background: rgba(26, 29, 38, 0.95); backdrop-filter: blur(12px); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 12px; width: 260px; z-index: 1000; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); text-align: left;">
+                    <div style="font-size: 12px; font-weight: 600; margin-bottom: 8px; color: var(--accent);">Configure Backend IP/URL</div>
+                    <input type="text" id="config-dropdown-input" placeholder="http://127.0.0.1:8000" style="background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-color); border-radius: 4px; padding: 6px 8px; color: #fff; font-size: 12px; width: 100%; margin-bottom: 8px; font-family: monospace;">
+                    <div style="display: flex; justify-content: space-between; gap: 8px;">
+                        <button class="btn btn-secondary" id="save-config-dropdown-btn" style="padding: 4px 10px; font-size: 11px; width: 100%; height: auto; border: none;">Connect</button>
+                        <button class="btn" id="reset-config-dropdown-btn" style="padding: 4px 10px; font-size: 11px; background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); width: 100%; height: auto;">Reset</button>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
@@ -111,6 +133,22 @@
                         <ul class="category-list" id="category-list">
                             <li class="empty-list-msg">No categories loaded. Upload an Excel file or add one manually.</li>
                         </ul>
+                </div>
+
+                <!-- Open on Mobile Card -->
+                <div class="card glass-card mobile-qr-card hide" id="mobile-qr-card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h2>📱 Open on Mobile Dashboard</h2>
+                    </div>
+                    <div class="card-body" style="display: flex; align-items: center; gap: 16px; padding: 16px 20px;">
+                        <div id="qr-code-container" style="background: white; padding: 8px; border-radius: 8px; display: inline-flex; box-shadow: 0 4px 12px rgba(0,0,0,0.15); flex-shrink: 0;">
+                            <img id="qr-code-img" src="" alt="Mobile QR Code" style="width: 120px; height: 120px; display: block;">
+                        </div>
+                        <div class="qr-info" style="flex: 1; text-align: left;">
+                            <p style="font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--accent);">Scan to open on your phone</p>
+                            <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5; margin-bottom: 8px;">Ensure both your phone and PC are connected to the same Wi-Fi network.</p>
+                            <a id="mobile-url-link" href="" target="_blank" style="font-family: var(--font-mono); font-size: 11px; color: var(--text-main); word-break: break-all; text-decoration: underline;"></a>
+                        </div>
                     </div>
                 </div>
             </section>

@@ -160,7 +160,9 @@ class GeMTenderCrawler:
                 "startup_relaxation": startup_relaxation,
                 "mse_relaxation": mse_relaxation,
                 "end_date": end_date,
-                "ministry": ministry
+                "ministry": ministry,
+                "pdf_text": text,
+                "pdf_lines": lines
             }
         except Exception as e:
             return {
@@ -190,8 +192,12 @@ class GeMTenderCrawler:
                 await page.click("span.select2-selection")
                 await page.wait_for_selector("input.select2-search__field")
                 
-                yield {"type": "log", "message": f"Typing category: '{category_name}'"}
-                await page.fill("input.select2-search__field", category_name)
+                # Clean category name of version/quantity suffixes (e.g. (V2)) for Select2 search input
+                cleaned_search_name = re.sub(r'\s*\([vqVQ]\d+\)\s*', ' ', category_name)
+                cleaned_search_name = re.sub(r'\s+', ' ', cleaned_search_name).strip()
+                
+                yield {"type": "log", "message": f"Typing category: '{cleaned_search_name}' (Target: '{category_name}')"}
+                await page.fill("input.select2-search__field", cleaned_search_name)
                 
                 # Wait for options to load
                 await page.wait_for_selector("li.select2-results__option")
@@ -200,14 +206,16 @@ class GeMTenderCrawler:
                 selected = False
                 for opt in options:
                     text = await opt.inner_text()
-                    if category_name.lower() in text.lower() or text.lower() in category_name.lower():
+                    # Check match against target name or cleaned search name
+                    if (category_name.lower() in text.lower() or text.lower() in category_name.lower() or
+                        cleaned_search_name.lower() in text.lower() or text.lower() in cleaned_search_name.lower()):
                         yield {"type": "log", "message": f"Found matching category option: '{text}'. Clicking..."}
                         await opt.click()
                         selected = True
                         break
                 
                 if not selected:
-                    raise Exception(f"Category '{category_name}' not found in Select2 dropdown list")
+                    raise Exception(f"Category '{cleaned_search_name}' not found in Select2 dropdown list")
                 
                 await page.wait_for_timeout(2000)
                 
@@ -246,10 +254,19 @@ class GeMTenderCrawler:
                     yield {"type": "log", "message": "Navigating to GeM all-bids page..."}
                     await page.goto("https://bidplus.gem.gov.in/all-bids", wait_until="networkidle")
                     
-                    yield {"type": "log", "message": f"Entering search term in fallback: '{category_name}'"}
-                    await page.fill("#searchBid", category_name)
-                    await page.press("#searchBid", "Enter")
-                    await page.wait_for_timeout(5000)
+                    cleaned_search_name = re.sub(r'\s*\([vqVQ]\d+\)\s*', ' ', category_name)
+                    cleaned_search_name = re.sub(r'\s+', ' ', cleaned_search_name).strip()
+                    
+                    yield {"type": "log", "message": f"Entering search term in fallback: '{cleaned_search_name}'"}
+                    await page.fill("#searchBid", cleaned_search_name)
+                    
+                    # Click search button #searchBidRA instead of pressing Enter to trigger request
+                    search_btn = await page.query_selector("#searchBidRA")
+                    if search_btn:
+                        await search_btn.click()
+                    else:
+                        await page.press("#searchBid", "Enter")
+                    await page.wait_for_timeout(7000)
                     
                     links = await page.query_selector_all("a")
                     for a in links:
@@ -289,13 +306,36 @@ class GeMTenderCrawler:
                         data = self.parse_gem_pdf(pdf_path)
                         if data["success"]:
                             extracted_cat = data.get("item_category", "Unknown")
-                            if not self.is_category_matching(category_name, extracted_cat):
+                            matched = self.is_category_matching(category_name, extracted_cat)
+                            
+                            if not matched:
+                                # Fallback check for bunched bids: check if target is in full PDF text
+                                cleaned_target = re.sub(r'\s*\([vqVQ]\d+\)\s*', ' ', category_name)
+                                cleaned_target = re.sub(r'\s+', ' ', cleaned_target).strip().lower()
+                                pdf_text = data.get("pdf_text", "").lower()
+                                if cleaned_target in pdf_text:
+                                    matched = True
+                                    # Find matching line in PDF to show as extracted category
+                                    for line in data.get("pdf_lines", []):
+                                        if cleaned_target in line.lower():
+                                            # Clean and use the matching line
+                                            extracted_cat = re.sub(r'^[:\-\s/]+', '', line).strip()
+                                            data["item_category"] = extracted_cat
+                                            break
+                            
+                            if not matched:
                                 yield {"type": "log", "message": f"Discarded mismatched bid {doc_id} (Extracted: '{extracted_cat}' for search target: '{category_name}')"}
                                 try:
                                     os.remove(pdf_path)
                                 except:
                                     pass
                                 continue
+
+                            # Remove text fields from results to save memory/data size
+                            if "pdf_text" in data:
+                                del data["pdf_text"]
+                            if "pdf_lines" in data:
+                                del data["pdf_lines"]
 
                             data["url"] = url
                             data["search_category"] = category_name
