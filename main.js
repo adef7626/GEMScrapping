@@ -2,7 +2,21 @@ document.addEventListener("DOMContentLoaded", () => {
     // Register Service Worker for PWA / iOS standalone webapp support
     if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("./sw.js")
-            .then(reg => console.log("Service Worker registered successfully:", reg.scope))
+            .then(reg => {
+                console.log("Service Worker registered successfully:", reg.scope);
+                // Listen for Service Worker updates to auto-refresh the browser cache
+                reg.onupdatefound = () => {
+                    const installingWorker = reg.installing;
+                    installingWorker.onstatechange = () => {
+                        if (installingWorker.state === 'installed') {
+                            if (navigator.serviceWorker.controller) {
+                                console.log("New version detected, auto-reloading...");
+                                window.location.reload();
+                            }
+                        }
+                    };
+                };
+            })
             .catch(err => console.log("Service Worker registration failed:", err));
     }
 

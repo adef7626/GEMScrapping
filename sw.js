@@ -1,4 +1,4 @@
-const CACHE_NAME = "gem-bid-intel-v1";
+const CACHE_NAME = "gem-bid-intel-v2";
 const ASSETS = [
   "./",
   "./index.html",
