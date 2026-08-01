@@ -183,6 +183,8 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
+    width: 100%;
+    min-width: 0;
 }
 
 .glass-card {
@@ -223,6 +225,10 @@ body {
 .card-body {
     padding: 20px;
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
 }
 
 /* Control Panel Section */
@@ -424,6 +430,8 @@ input[type="text"]:focus, input[type="search"]:focus {
     flex-direction: column;
     flex: 1;
     min-height: 0;
+    width: 100%;
+    min-width: 0;
 }
 
 .upload-card, .launch-card {
@@ -444,6 +452,8 @@ input[type="text"]:focus, input[type="search"]:focus {
     border-radius: 8px;
     background: rgba(0, 0, 0, 0.15);
     padding: 6px;
+    width: 100%;
+    min-width: 0;
 }
 
 .category-list li {
@@ -1048,8 +1058,17 @@ input[type="text"]:focus, input[type="search"]:focus {
     user-select: all;
 }
 
+/* Default desktop rules for mobile helpers */
+.hide-mobile {
+    display: inline;
+}
+
 /* Mobile Media Queries & Layout Optimizations */
 @media (max-width: 767px) {
+    .hide-mobile {
+        display: none !important;
+    }
+    
     html, body {
         max-width: 100%;
         width: 100%;
