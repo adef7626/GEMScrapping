@@ -454,6 +454,7 @@ input[type="text"]:focus, input[type="search"]:focus {
     font-size: 12px;
     margin-bottom: 4px;
     border: 1px solid rgba(255, 255, 255, 0.02);
+    min-width: 0;
 }
 
 .category-list li:hover {
@@ -463,6 +464,7 @@ input[type="text"]:focus, input[type="search"]:focus {
 
 .category-text {
     flex: 1;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -868,6 +870,7 @@ input[type="text"]:focus, input[type="search"]:focus {
     align-items: center;
     gap: 10px;
     padding: 6px 10px;
+    min-width: 0;
 }
 
 .category-checkbox {
@@ -879,6 +882,7 @@ input[type="text"]:focus, input[type="search"]:focus {
 
 .category-text {
     flex: 1;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -992,6 +996,8 @@ input[type="text"]:focus, input[type="search"]:focus {
     border-bottom: 1px solid rgba(255, 255, 255, 0.15);
     color: #ffffff;
     padding: 12px 0;
+    /* Safely add top-inset padding if banner is visible at the very top of screen */
+    padding-top: calc(12px + env(safe-area-inset-top, 0px));
     font-size: 13px;
     z-index: 1000;
     position: relative;
@@ -1002,6 +1008,11 @@ input[type="text"]:focus, input[type="search"]:focus {
 .warning-banner.info-mode {
     background: linear-gradient(90deg, rgba(0, 191, 255, 0.95), rgba(138, 43, 226, 0.95));
     box-shadow: 0 4px 20px rgba(0, 191, 255, 0.25);
+}
+
+/* If the warning banner is visible, the adjacent sticky header should not apply double safe-area padding */
+.warning-banner:not(.hide) + .app-header {
+    padding-top: 16px;
 }
 
 .warning-banner.hide {
