@@ -999,6 +999,11 @@ input[type="text"]:focus, input[type="search"]:focus {
     transition: var(--transition);
 }
 
+.warning-banner.info-mode {
+    background: linear-gradient(90deg, rgba(0, 191, 255, 0.95), rgba(138, 43, 226, 0.95));
+    box-shadow: 0 4px 20px rgba(0, 191, 255, 0.25);
+}
+
 .warning-banner.hide {
     display: none !important;
 }

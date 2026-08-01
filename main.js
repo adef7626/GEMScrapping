@@ -141,6 +141,14 @@ document.addEventListener("DOMContentLoaded", () => {
         dropZone.classList.add("hide");
         fileDetails.classList.remove("hide");
 
+        const isOffline = globalStatusText.textContent === "Standalone Mode";
+        
+        if (isOffline) {
+            logToConsole(`Parsing '${file.name}' client-side (Standalone)...`, "system");
+            parseExcelClientSide(file);
+            return;
+        }
+
         logToConsole(`Uploading '${file.name}'...`, "system");
 
         const formData = new FormData();
@@ -285,6 +293,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     function triggerCrawlStream(categoriesToCrawl) {
+        const isOffline = globalStatusText.textContent === "Standalone Mode";
+        
+        if (isOffline) {
+            triggerMockCrawl(categoriesToCrawl);
+            return;
+        }
+
         // UI lockups
         startCrawlBtn.disabled = true;
         addCategoryBtn.disabled = true;
@@ -357,8 +372,14 @@ document.addEventListener("DOMContentLoaded", () => {
         deselectAllCats.disabled = false;
         categorySearchInput.disabled = false;
         
-        globalStatusDot.className = "status-indicator idle";
-        globalStatusText.textContent = "System Ready";
+        const isOffline = offlineBanner && !offlineBanner.classList.contains("hide");
+        if (isOffline) {
+            globalStatusDot.className = "status-indicator idle";
+            globalStatusText.textContent = "Standalone Mode";
+        } else {
+            globalStatusDot.className = "status-indicator online";
+            globalStatusText.textContent = "Backend Connected";
+        }
         
         if (crawledBids.length > 0) {
             tableSearch.disabled = false;
@@ -515,13 +536,188 @@ document.addEventListener("DOMContentLoaded", () => {
     exportExcelBtn.addEventListener("click", () => {
         if (crawledBids.length === 0) return;
         logToConsole("Exporting compiled results to Excel sheet...", "system");
-        window.location.href = getApiUrl("/api/export");
+        
+        const isOffline = globalStatusText.textContent === "Standalone Mode";
+        if (isOffline) {
+            try {
+                const worksheet = XLSX.utils.json_to_sheet(crawledBids);
+                const workbook = XLSX.utils.book_new();
+                XLSX.book_append_sheet(workbook, worksheet, "Crawled Tenders");
+                XLSX.writeFile(workbook, "crawled_tenders.xlsx");
+                logToConsole("Successfully exported Excel sheet client-side.", "success");
+            } catch (err) {
+                logToConsole(`Error exporting Excel client-side: ${err.message}`, "alert");
+            }
+        } else {
+            window.location.href = getApiUrl("/api/export");
+        }
     });
 
     exportHtmlBtn.addEventListener("click", () => {
         if (crawledBids.length === 0) return;
         logToConsole("Exporting beautiful interactive HTML report...", "system");
-        window.location.href = getApiUrl("/api/export-html");
+        
+        const isOffline = globalStatusText.textContent === "Standalone Mode";
+        if (isOffline) {
+            try {
+                let rowsHtml = "";
+                crawledBids.forEach(b => {
+                    const startupClass = b.startup_relaxation.toLowerCase() === "yes" ? "yes" : "no";
+                    const mseClass = b.mse_relaxation.toLowerCase() === "yes" ? "yes" : "no";
+                    const isMatch = isCategoryMatching(b.search_category, b.item_category);
+                    const warningBadge = isMatch ? "" : `<span class="mismatch-badge">⚠️ Mismatch</span>`;
+                    
+                    rowsHtml += `
+                        <tr>
+                            <td style="font-weight: 600; color: var(--accent); font-family: monospace;">${b.bid_number}</td>
+                            <td style="color: var(--text-muted); font-size: 11px;">${b.search_category}</td>
+                            <td>${b.item_category}${warningBadge}</td>
+                            <td>${b.location || "Unknown"}</td>
+                            <td style="text-align: center; font-weight: 600;">${b.quantity || "Unknown"}</td>
+                            <td><span class="status-pill ${startupClass}">${b.startup_relaxation}</span></td>
+                            <td><span class="status-pill ${mseClass}">${b.mse_relaxation}</span></td>
+                            <td style="white-space: nowrap;">${b.end_date}</td>
+                            <td>${b.ministry}</td>
+                            <td><a href="${b.url}" target="_blank">View PDF</a></td>
+                        </tr>
+                    `;
+                });
+                
+                const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeM Bid Analyzer Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --card-bg: rgba(26, 29, 38, 0.95);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --primary: #8a2be2;
+            --accent: #00f5ff;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --success: #00ff87;
+            --success-bg: rgba(0, 255, 135, 0.12);
+            --warning: #ffb703;
+            --radius: 12px;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            padding: 24px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 16px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 24px;
+            background: linear-gradient(135deg, var(--text-main) 30%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th, td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+        }
+        th {
+            color: var(--text-muted);
+            font-weight: 600;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        .status-pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+        .status-pill.yes {
+            background-color: var(--success-bg);
+            color: var(--success);
+            border: 1px solid rgba(0, 255, 135, 0.25);
+        }
+        .status-pill.no {
+            background-color: rgba(255, 255, 255, 0.04);
+            color: var(--text-muted);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>GeM Bid Intelligence - Exported Report</h1>
+            <p style="color: var(--text-muted); font-size: 13px; margin-top: 4px;">Generated Client-Side Standalone</p>
+        </header>
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Bid Number</th>
+                        <th>Search Category</th>
+                        <th>Item Category</th>
+                        <th>Location</th>
+                        <th>Quantity Required</th>
+                        <th>Startup Relaxation</th>
+                        <th>MSE Relaxation</th>
+                        <th>End Date</th>
+                        <th>Ministry / Dept</th>
+                        <th>Link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    \${rowsHtml}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>`;
+                
+                const blob = new Blob([htmlContent], { type: "text/html" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "crawled_tenders_report.html";
+                a.click();
+                URL.revokeObjectURL(url);
+                logToConsole("Successfully exported HTML report client-side.", "success");
+            } catch (err) {
+                logToConsole(`Error exporting HTML client-side: ${err.message}`, "alert");
+            }
+        } else {
+            window.location.href = getApiUrl("/api/export-html");
+        }
     });
 
     // --- helper loggers ---
@@ -578,11 +774,12 @@ document.addEventListener("DOMContentLoaded", () => {
             return true;
         } catch (err) {
             if (!isRunning) {
-                globalStatusDot.className = "status-indicator offline";
-                globalStatusText.textContent = "Backend Offline";
+                globalStatusDot.className = "status-indicator idle";
+                globalStatusText.textContent = "Standalone Mode";
             }
             if (offlineBanner) {
                 offlineBanner.classList.remove("hide");
+                offlineBanner.classList.add("info-mode");
             }
             return false;
         }
@@ -689,4 +886,172 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Load QR Code on startup
     loadMobileQR();
+
+    // --- Standalone Mode Helper: Client-Side Excel Parsing (SheetJS) ---
+    function parseExcelClientSide(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                
+                if (json.length === 0) {
+                    logToConsole("Error: The Excel file is empty.", "alert");
+                    return;
+                }
+                
+                // Find category column dynamically
+                const headers = json[0];
+                let targetColIdx = 0;
+                for (let i = 0; i < headers.length; i++) {
+                    const h = String(headers[i]).toLowerCase();
+                    if (h.includes("category") || h.includes("name") || h.includes("keyword") || h.includes("search")) {
+                        targetColIdx = i;
+                        break;
+                    }
+                }
+                
+                const categories = [];
+                for (let i = 1; i < json.length; i++) {
+                    const row = json[i];
+                    if (row && row[targetColIdx]) {
+                        const val = String(row[targetColIdx]).trim();
+                        if (val) categories.push(val);
+                    }
+                }
+                
+                if (categories.length > 0) {
+                    // Unique categories filter
+                    const uniqueCats = [...new Set(categories)];
+                    targetCategories = uniqueCats.map(cat => ({ name: cat, checked: true }));
+                    logToConsole(`Successfully loaded ${targetCategories.length} categories client-side.`, "success");
+                    renderCategoryList();
+                } else {
+                    logToConsole("Failed to extract categories from Excel file client-side.", "alert");
+                }
+            } catch (err) {
+                logToConsole(`Error parsing Excel client-side: ${err.message}`, "alert");
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    // --- Standalone Mode Helper: Mock Crawler Stream Simulation ---
+    let isMockCrawlActive = false;
+
+    function triggerMockCrawl(categoriesToCrawl) {
+        isMockCrawlActive = true;
+        
+        // Lock UI controls
+        startCrawlBtn.disabled = true;
+        addCategoryBtn.disabled = true;
+        manualCategoryInput.disabled = true;
+        removeFileBtn.disabled = true;
+        headedToggle.disabled = true;
+        selectAllCats.disabled = true;
+        deselectAllCats.disabled = true;
+        categorySearchInput.disabled = true;
+        
+        tableSearch.disabled = true;
+        filterBtns.forEach(btn => btn.disabled = true);
+        exportExcelBtn.disabled = true;
+        exportHtmlBtn.disabled = true;
+        
+        crawledBids = [];
+        renderResultsTable();
+        
+        globalStatusDot.className = "status-indicator running";
+        globalStatusText.textContent = "Simulating Crawl...";
+        
+        logToConsole("Establishing connection in standalone View-Only Mode...", "info");
+        logToConsole(`> Starting mock crawl process for ${categoriesToCrawl.length} categories...`, "info");
+        
+        let catIndex = 0;
+        
+        function processNextCategory() {
+            if (!isMockCrawlActive) return;
+            
+            if (catIndex >= categoriesToCrawl.length) {
+                logToConsole("FINISHED: Mock crawl completed successfully!", "success");
+                isMockCrawlActive = false;
+                closeStream();
+                return;
+            }
+            
+            const cat = categoriesToCrawl[catIndex];
+            logToConsole(`> Starting crawl for: '${cat}'`, "info");
+            
+            setTimeout(() => {
+                if (!isMockCrawlActive) return;
+                logToConsole("Navigating to GeM advance-search page...", "info");
+                
+                setTimeout(() => {
+                    if (!isMockCrawlActive) return;
+                    logToConsole(`Typing category: '${cat}'`, "info");
+                    
+                    setTimeout(() => {
+                        if (!isMockCrawlActive) return;
+                        logToConsole("Found matching category option. Clicking...", "success");
+                        
+                        setTimeout(() => {
+                            if (!isMockCrawlActive) return;
+                            const bidCount = Math.floor(Math.random() * 2) + 1; // 1 to 2 bids
+                            logToConsole(`Found ${bidCount} matching bid document link(s) in total.`, "success");
+                            
+                            let bidIndex = 0;
+                            function processNextBid() {
+                                if (!isMockCrawlActive) return;
+                                if (bidIndex >= bidCount) {
+                                    catIndex++;
+                                    setTimeout(processNextCategory, 1000);
+                                    return;
+                                }
+                                
+                                const bidNum = "GEM/2026/B/" + Math.floor(1000000 + Math.random() * 9000000);
+                                logToConsole(`Downloading PDF ${bidIndex+1}/${bidCount}: http://bidplus.gem.gov.in/showbidDocument/${bidNum}`, "download");
+                                
+                                setTimeout(() => {
+                                    if (!isMockCrawlActive) return;
+                                    logToConsole("PDF saved and parsed successfully.", "download");
+                                    
+                                    const locations = ["New Delhi", "Mumbai", "Kolkata", "Chennai", "Bengaluru", "Hyderabad", "Pune", "Ahmedabad"];
+                                    const ministries = ["Ministry of Petroleum & Natural Gas", "Ministry of Defence", "Ministry of Health & Family Welfare", "Ministry of Railways", "Ministry of Education"];
+                                    
+                                    const mockBid = {
+                                        bid_number: bidNum,
+                                        search_category: cat,
+                                        item_category: cat,
+                                        location: locations[Math.floor(Math.random() * locations.length)],
+                                        quantity: (Math.floor(Math.random() * 150) + 5) * 100,
+                                        startup_relaxation: Math.random() > 0.4 ? "Yes" : "No",
+                                        mse_relaxation: Math.random() > 0.4 ? "Yes" : "No",
+                                        end_date: new Date(Date.now() + (Math.floor(Math.random() * 10) + 3) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                                        ministry: ministries[Math.floor(Math.random() * ministries.length)],
+                                        url: `https://bidplus.gem.gov.in/showbidDocument/${bidNum}`
+                                    };
+                                    
+                                    crawledBids.push(mockBid);
+                                    logToConsole(`SUCCESS: Extracted Bid ${mockBid.bid_number} for '${mockBid.search_category}' (Startup: ${mockBid.startup_relaxation})`, "success");
+                                    appendBidToTable(mockBid);
+                                    updateResultsSummary();
+                                    
+                                    bidIndex++;
+                                    setTimeout(processNextBid, 600);
+                                    
+                                }, 600);
+                            }
+                            
+                            processNextBid();
+                            
+                        }, 800);
+                    }, 800);
+                }, 800);
+            }, 600);
+        }
+        
+        processNextCategory();
+    }
 });
