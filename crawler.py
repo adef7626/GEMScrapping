@@ -8,25 +8,66 @@ class GeMTenderCrawler:
     def __init__(self, downloads_dir="downloads", headless=True):
         self.downloads_dir = downloads_dir
         self.headless = headless
+        self.should_stop = False
         os.makedirs(self.downloads_dir, exist_ok=True)
 
     def is_category_matching(self, target, extracted):
         if not target or not extracted:
             return False
-        # Normalize and tokenize
+            
+        # Strip parentheses contents first for flat comparison
+        t_clean = re.sub(r'\([^)]*\)', '', target.lower())
+        e_clean = re.sub(r'\([^)]*\)', '', extracted.lower())
+        
+        # Flat alphanumeric matching (e.g. "methyl di ethanol amine" vs "methyldiethanolamine")
+        t_flat = re.sub(r'[^a-z0-9]+', '', t_clean)
+        e_flat = re.sub(r'[^a-z0-9]+', '', e_clean)
+        
+        if t_flat == e_flat:
+            return True
+            
+        # Only allow substring match if they are very close in length (prevent matching "ethanol" in "monoethanolamine")
+        if len(t_flat) > 0 and len(e_flat) > 0:
+            shorter, longer = sorted([t_flat, e_flat], key=len)
+            if shorter in longer and (len(shorter) / len(longer)) >= 0.75:
+                return True
+                
+        # Tokenized matching as a fallback
         t_words = set(re.findall(r'[a-z0-9]+', target.lower()))
         e_words = set(re.findall(r'[a-z0-9]+', extracted.lower()))
-        # Remove common stop words or single characters
         stop_words = {'to', 'is', 'in', 'and', 'for', 'of', 'conforming', 'v1', 'v2', 'v3', 'v4', 'q1', 'q2', 'q3', 'q4'}
         t_words = t_words - stop_words
         e_words = e_words - stop_words
         if not t_words or not e_words:
             return False
-        # Check intersection
+            
         intersection = t_words.intersection(e_words)
-        # Check overlap fraction relative to the target words
         overlap = len(intersection) / len(t_words)
         return overlap >= 0.6
+
+    def clean_category_name(self, category):
+        # Remove anything in parentheses (e.g., "(MDEA)", "(In Kg)", "(V2)")
+        cleaned = re.sub(r'\([^)]*\)', ' ', category)
+        # Remove common unit/quantity/version labels (case-insensitive)
+        cleaned = re.sub(r'(?i)\b(in\s+(kg|kilograms?|nos|numbers?|ltrs?|litres?|packs?|pcs|pieces?|sets?|bags?|pairs?|box|meters?|mtrs?|pack))\b', ' ', cleaned)
+        cleaned = re.sub(r'(?i)\b(v\d+|q\d+)\b', ' ', cleaned)
+        # Replace multiple spaces and trim
+        cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+        return cleaned
+
+    def check_text_relevance(self, target_name, text):
+        if not target_name or not text:
+            return False
+        cleaned_target = self.clean_category_name(target_name)
+        stop_words = {'to', 'is', 'in', 'and', 'for', 'of', 'conforming', 'v1', 'v2', 'v3', 'v4', 'q1', 'q2', 'q3', 'q4'}
+        t_words = set(re.findall(r'[a-z0-9]+', cleaned_target.lower())) - stop_words
+        # Filter out short words (< 3 chars) to avoid false matches on "di", "in", etc.
+        t_words = {w for w in t_words if len(w) >= 3}
+        if not t_words:
+            t_words = set(re.findall(r'[a-z0-9]+', cleaned_target.lower())) - stop_words
+        
+        text_words = set(re.findall(r'[a-z0-9]+', text.lower()))
+        return len(t_words.intersection(text_words)) > 0
 
     def parse_gem_pdf(self, pdf_path):
         """Extracts key metadata from a downloaded GeM bid PDF document."""
@@ -192,30 +233,46 @@ class GeMTenderCrawler:
                 await page.click("span.select2-selection")
                 await page.wait_for_selector("input.select2-search__field")
                 
-                # Clean category name of version/quantity suffixes (e.g. (V2)) for Select2 search input
-                cleaned_search_name = re.sub(r'\s*\([vqVQ]\d+\)\s*', ' ', category_name)
-                cleaned_search_name = re.sub(r'\s+', ' ', cleaned_search_name).strip()
+                cleaned_search_name = self.clean_category_name(category_name)
                 
-                yield {"type": "log", "message": f"Typing category: '{cleaned_search_name}' (Target: '{category_name}')"}
-                await page.fill("input.select2-search__field", cleaned_search_name)
-                
-                # Wait for options to load
-                await page.wait_for_selector("li.select2-results__option")
-                options = await page.query_selector_all("li.select2-results__option")
-                
+                # Multi-stage dropdown search variations to maximize match chances in Select2
+                search_queries = [cleaned_search_name]
+                words = cleaned_search_name.split()
+                if len(words) > 2:
+                    search_queries.append(" ".join(words[:2]))
+                longest_word = max(words, key=len) if words else ""
+                if longest_word and len(longest_word) >= 4 and longest_word not in search_queries:
+                    search_queries.append(longest_word)
+                    
                 selected = False
-                for opt in options:
-                    text = await opt.inner_text()
-                    # Check match against target name or cleaned search name
-                    if (category_name.lower() in text.lower() or text.lower() in category_name.lower() or
-                        cleaned_search_name.lower() in text.lower() or text.lower() in cleaned_search_name.lower()):
-                        yield {"type": "log", "message": f"Found matching category option: '{text}'. Clicking..."}
-                        await opt.click()
-                        selected = True
+                for q_idx, query in enumerate(search_queries):
+                    yield {"type": "log", "message": f"Searching category in dropdown (Attempt {q_idx+1}/{len(search_queries)}): '{query}'"}
+                    # Clear and fill
+                    await page.fill("input.select2-search__field", "")
+                    await page.fill("input.select2-search__field", query)
+                    
+                    try:
+                        # Wait for options
+                        await page.wait_for_selector("li.select2-results__option", timeout=4000)
+                        options = await page.query_selector_all("li.select2-results__option")
+                        
+                        for opt in options:
+                            text = await opt.inner_text()
+                            if "searching" in text.lower() or "no results" in text.lower():
+                                continue
+                            if self.is_category_matching(category_name, text):
+                                yield {"type": "log", "message": f"Found matching category option: '{text}'. Clicking..."}
+                                await opt.click()
+                                selected = True
+                                break
+                    except Exception:
+                        continue
+                        
+                    if selected:
                         break
                 
                 if not selected:
-                    raise Exception(f"Category '{cleaned_search_name}' not found in Select2 dropdown list")
+                    raise Exception(f"Category '{cleaned_search_name}' and search variants not found in Select2 list")
                 
                 await page.wait_for_timeout(2000)
                 
@@ -239,52 +296,37 @@ class GeMTenderCrawler:
                             if not href.startswith("/"):
                                 href = "/" + href
                             href = "https://bidplus.gem.gov.in" + href
-                        bid_urls.append(href)
+                        
+                        # Pre-verify text relevance
+                        parent_text = await page.evaluate("""el => {
+                            let p = el;
+                            for (let i = 0; i < 5; i++) {
+                                if (p.parentElement) p = p.parentElement;
+                                else break;
+                            }
+                            return p.innerText || "";
+                        }""", a)
+                        
+                        if self.check_text_relevance(category_name, parent_text):
+                            bid_urls.append(href)
+                        else:
+                            doc_id = href.split("/")[-1]
+                            yield {"type": "log", "message": f"Pre-filter: skipped unrelated bid {doc_id} (text mismatch on search page)"}
                 bid_urls = list(set(bid_urls))
                 
                 if not bid_urls:
                     yield {"type": "log", "message": f"No active bids found on GeM for category '{category_name}'."}
                     use_fallback = False
             except Exception as e:
-                yield {"type": "log", "message": f"Advanced search failed or timed out: {str(e)}. Falling back to all-bids text search..."}
-                use_fallback = True
-                
-            if use_fallback:
-                try:
-                    yield {"type": "log", "message": "Navigating to GeM all-bids page..."}
-                    await page.goto("https://bidplus.gem.gov.in/all-bids", wait_until="networkidle")
-                    
-                    cleaned_search_name = re.sub(r'\s*\([vqVQ]\d+\)\s*', ' ', category_name)
-                    cleaned_search_name = re.sub(r'\s+', ' ', cleaned_search_name).strip()
-                    
-                    yield {"type": "log", "message": f"Entering search term in fallback: '{cleaned_search_name}'"}
-                    await page.fill("#searchBid", cleaned_search_name)
-                    
-                    # Click search button #searchBidRA instead of pressing Enter to trigger request
-                    search_btn = await page.query_selector("#searchBidRA")
-                    if search_btn:
-                        await search_btn.click()
-                    else:
-                        await page.press("#searchBid", "Enter")
-                    await page.wait_for_timeout(7000)
-                    
-                    links = await page.query_selector_all("a")
-                    for a in links:
-                        href = await a.get_attribute("href")
-                        if href and ("showbidDocument" in href or "showradocumentPdf" in href):
-                            if not href.startswith("http"):
-                                if not href.startswith("/"):
-                                    href = "/" + href
-                                href = "https://bidplus.gem.gov.in" + href
-                            bid_urls.append(href)
-                    bid_urls = list(set(bid_urls))
-                except Exception as ex:
-                    yield {"type": "log", "message": f"Fallback search failed: {str(ex)}"}
+                yield {"type": "log", "message": f"Advanced search failed or timed out: Category '{category_name}' not found or matched in dropdown. Skipping..."}
             
             try:
                 yield {"type": "log", "message": f"Found {len(bid_urls)} matching bid document link(s) in total."}
                 
                 for idx, url in enumerate(bid_urls):
+                    if getattr(self, "should_stop", False):
+                        yield {"type": "log", "message": "Crawl process cancelled by user request."}
+                        break
                     doc_id = url.split("/")[-1]
                     pdf_path = os.path.join(self.downloads_dir, f"{doc_id}.pdf")
                     

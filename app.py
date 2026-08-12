@@ -1,6 +1,12 @@
 import os
 import json
 import asyncio
+import sys
+
+# Force ProactorEventLoop on Windows to support subprocesses (required by Playwright)
+if sys.platform == 'win32':
+    asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+
 import pandas as pd
 from fastapi import FastAPI, UploadFile, File, Query
 from fastapi.responses import HTMLResponse, StreamingResponse, FileResponse
@@ -109,12 +115,19 @@ async def get_network_info():
 async def upload_excel(file: UploadFile = File(...)):
     """Parses Excel and returns the list of categories found."""
     try:
-        temp_path = f"temp_{file.filename}"
-        with open(temp_path, "wb") as f:
-            f.write(await file.read())
+        import tempfile
+        
+        # Save to a unique temporary file to avoid filename collisions and Windows file-lock errors
+        suffix = os.path.splitext(file.filename)[1]
+        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
+            temp_file.write(await file.read())
+            temp_path = temp_file.name
             
-        df = pd.read_excel(temp_path)
-        os.remove(temp_path)  # Clean up
+        try:
+            df = pd.read_excel(temp_path)
+        finally:
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
         
         if df.empty:
             return {"success": False, "error": "The Excel file is empty."}
@@ -134,29 +147,94 @@ async def upload_excel(file: UploadFile = File(...)):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
+active_crawler = None
+
+def run_crawler_thread(category_list, q, downloads_dir, headless):
+    global active_crawler
+    
+    # Setup a new ProactorEventLoop for this dedicated thread to support Playwright subprocesses
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    
+    if sys.platform == 'win32':
+        loop = asyncio.windows_events.ProactorEventLoop()
+        asyncio.set_event_loop(loop)
+        
+    async def run_crawl():
+        global active_crawler
+        crawler = GeMTenderCrawler(downloads_dir=downloads_dir, headless=headless)
+        active_crawler = crawler
+        
+        for category in category_list:
+            if getattr(crawler, "should_stop", False):
+                break
+            try:
+                async for event in crawler.crawl_category(category):
+                    if getattr(crawler, "should_stop", False):
+                        break
+                    q.put(event)
+            except Exception as e:
+                q.put({"type": "log", "message": f"Error crawling category '{category}': {str(e)}"})
+                
+        if getattr(crawler, "should_stop", False):
+            q.put({"type": "complete", "message": "Crawl process stopped by user."})
+        else:
+            q.put({"type": "complete", "message": "All categories crawled successfully!"})
+            
+        active_crawler = None
+        
+    try:
+        loop.run_until_complete(run_crawl())
+    finally:
+        loop.close()
+
 @app.get("/api/crawl-stream")
 async def crawl_stream(categories: str = Query(...), headless: bool = True):
     """Streams live crawling updates and results to the frontend."""
+    import queue
+    import threading
+    
     category_list = [c.strip() for c in categories.split(",") if c.strip()]
-    crawler = GeMTenderCrawler(downloads_dir=DOWNLOADS_DIR, headless=headless)
     
     global crawled_results
     crawled_results = []
     
+    q = queue.Queue()
+    
+    # Start Playwright crawler in a separate thread running Proactor loop
+    thread = threading.Thread(
+        target=run_crawler_thread,
+        args=(category_list, q, DOWNLOADS_DIR, headless),
+        daemon=True
+    )
+    thread.start()
+    
     async def event_generator():
         yield f"data: {json.dumps({'type': 'log', 'message': f'Starting crawl process for {len(category_list)} categories...'})}\n\n"
         
-        for category in category_list:
-            async for event in crawler.crawl_category(category):
-                if event["type"] == "bid_result":
+        while True:
+            try:
+                event = q.get_nowait()
+                if event.get("type") == "complete":
+                    yield f"data: {json.dumps(event)}\n\n"
+                    break
+                if event.get("type") == "bid_result":
                     crawled_results.append(event["data"])
                 yield f"data: {json.dumps(event)}\n\n"
-                # Short pause to prevent socket backup
+            except queue.Empty:
+                # Yield control to main loop
                 await asyncio.sleep(0.1)
                 
-        yield f"data: {json.dumps({'type': 'complete', 'message': 'All categories crawled successfully!'})}\n\n"
-        
     return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+@app.post("/api/stop-crawl")
+async def stop_crawl():
+    """Stops the active crawler process."""
+    global active_crawler
+    if active_crawler:
+        active_crawler.should_stop = True
+        return {"success": True, "message": "Stop signal sent to crawler."}
+    return {"success": False, "message": "No active crawler to stop."}
 
 @app.get("/api/export")
 async def export_results():
@@ -457,4 +535,4 @@ if __name__ == "__main__":
         print("="*60 + "\n")
     except Exception:
         pass
-    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=False)
+    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)

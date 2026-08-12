@@ -37,6 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const categoryCount = document.getElementById("category-count");
     
     const startCrawlBtn = document.getElementById("start-crawl-btn");
+    const stopCrawlBtn = document.getElementById("stop-crawl-btn");
     const headedToggle = document.getElementById("headed-toggle");
     
     const terminalConsole = document.getElementById("terminal-console");
@@ -176,8 +177,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await response.json();
             
             if (data.success && data.categories.length > 0) {
-                // Initialize all as checked: true
-                targetCategories = data.categories.map(cat => ({ name: cat, checked: true }));
+                // Initialize all as checked: false
+                targetCategories = data.categories.map(cat => ({ name: cat, checked: false }));
                 logToConsole(`Successfully loaded ${targetCategories.length} categories from Excel file.`, "success");
                 renderCategoryList();
             } else {
@@ -316,6 +317,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // UI lockups
         startCrawlBtn.disabled = true;
+        startCrawlBtn.classList.add("hide");
+        stopCrawlBtn.classList.remove("hide");
         addCategoryBtn.disabled = true;
         manualCategoryInput.disabled = true;
         removeFileBtn.disabled = true;
@@ -378,6 +381,8 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // Restore controls
         startCrawlBtn.disabled = false;
+        startCrawlBtn.classList.remove("hide");
+        stopCrawlBtn.classList.add("hide");
         addCategoryBtn.disabled = false;
         manualCategoryInput.disabled = false;
         removeFileBtn.disabled = false;
@@ -940,7 +945,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (categories.length > 0) {
                     // Unique categories filter
                     const uniqueCats = [...new Set(categories)];
-                    targetCategories = uniqueCats.map(cat => ({ name: cat, checked: true }));
+                    targetCategories = uniqueCats.map(cat => ({ name: cat, checked: false }));
                     logToConsole(`Successfully loaded ${targetCategories.length} categories client-side.`, "success");
                     renderCategoryList();
                 } else {
@@ -961,6 +966,8 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // Lock UI controls
         startCrawlBtn.disabled = true;
+        startCrawlBtn.classList.add("hide");
+        stopCrawlBtn.classList.remove("hide");
         addCategoryBtn.disabled = true;
         manualCategoryInput.disabled = true;
         removeFileBtn.disabled = true;
@@ -1067,5 +1074,38 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         
         processNextCategory();
+    }
+
+    // --- Stop Extraction Handler ---
+    stopCrawlBtn.addEventListener("click", () => {
+        stopCrawl();
+    });
+
+    async function stopCrawl() {
+        logToConsole("Stopping extraction process...", "alert");
+        
+        const isOffline = globalStatusText.textContent.includes("Standalone") || 
+                          globalStatusText.textContent.includes("Simulating");
+        
+        if (isOffline) {
+            isMockCrawlActive = false;
+            logToConsole("Mock crawl simulation stopped by user.", "alert");
+            closeStream();
+            return;
+        }
+        
+        try {
+            await fetch(getApiUrl("/api/stop-crawl"), { method: "POST" });
+        } catch (err) {
+            console.error("Error sending stop crawl signal:", err);
+        }
+        
+        if (eventSource) {
+            eventSource.close();
+            eventSource = null;
+        }
+        
+        logToConsole("Crawl execution stopped by user.", "alert");
+        closeStream();
     }
 });

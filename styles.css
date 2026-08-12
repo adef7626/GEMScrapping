@@ -419,6 +419,17 @@ input[type="text"]:focus, input[type="search"]:focus {
     filter: brightness(1.1);
 }
 
+.btn-danger {
+    background: linear-gradient(135deg, #ff0055 0%, #990033 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 0, 85, 0.4);
+}
+
+.btn-danger:hover {
+    box-shadow: 0 4px 20px rgba(255, 0, 85, 0.6);
+    filter: brightness(1.1);
+}
+
 .btn-block {
     width: 100%;
     padding: 12px;
