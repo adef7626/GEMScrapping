@@ -781,16 +781,19 @@ document.addEventListener("DOMContentLoaded", () => {
     async function checkBackendStatus() {
         const isRunning = globalStatusDot.classList.contains("running");
         try {
-            // Ping the backend using a simple HEAD fetch to styles.css
-            const response = await fetch(getApiUrl("/styles.css"), { method: "HEAD" });
-            if (!isRunning) {
-                globalStatusDot.className = "status-indicator online";
-                globalStatusText.textContent = "Backend Connected";
+            // Ping health endpoint with cache no-store
+            const response = await fetch(getApiUrl("/api/health"), { cache: "no-store" });
+            if (response.ok) {
+                if (!isRunning) {
+                    globalStatusDot.className = "status-indicator online";
+                    globalStatusText.textContent = "Backend Connected";
+                }
+                if (offlineBanner) {
+                    offlineBanner.classList.add("hide");
+                }
+                return true;
             }
-            if (offlineBanner) {
-                offlineBanner.classList.add("hide");
-            }
-            return true;
+            throw new Error("Backend status check returned HTTP " + response.status);
         } catch (err) {
             if (!isRunning) {
                 globalStatusDot.className = "status-indicator idle";
@@ -816,6 +819,54 @@ document.addEventListener("DOMContentLoaded", () => {
     const configInput = document.getElementById("config-dropdown-input");
     const saveConfigBtn = document.getElementById("save-config-dropdown-btn");
     const resetConfigBtn = document.getElementById("reset-config-dropdown-btn");
+    const configStatusMsg = document.getElementById("config-status-msg");
+
+    async function saveBackendConfig() {
+        let val = configInput.value.trim();
+        if (!val) return;
+
+        // Auto-prefix http:// if missing
+        if (!val.startsWith("http://") && !val.startsWith("https://")) {
+            val = "http://" + val;
+        }
+
+        // Auto-append default port :8000 if no port specified
+        const hostPortPart = val.replace(/^https?:\/\//, "");
+        if (!hostPortPart.includes(":")) {
+            val = val + ":8000";
+        }
+
+        configInput.value = val;
+
+        if (configStatusMsg) {
+            configStatusMsg.style.display = "block";
+            configStatusMsg.style.color = "var(--accent)";
+            configStatusMsg.textContent = `Connecting to ${val}...`;
+        }
+
+        logToConsole(`Attempting connection to backend: ${val}`, "system");
+        localStorage.setItem("backend_url", val);
+
+        const isOnline = await checkBackendStatus();
+
+        if (isOnline) {
+            if (configStatusMsg) {
+                configStatusMsg.style.color = "var(--success)";
+                configStatusMsg.textContent = "Connected successfully!";
+            }
+            logToConsole(`Successfully connected to backend: ${val}`, "success");
+            setTimeout(() => {
+                configDropdown.classList.add("hide");
+                if (configStatusMsg) configStatusMsg.style.display = "none";
+            }, 800);
+        } else {
+            if (configStatusMsg) {
+                configStatusMsg.style.color = "var(--danger)";
+                configStatusMsg.textContent = "Connection failed. Check Wi-Fi or PC IP.";
+            }
+            logToConsole(`Failed to connect to ${val}. Ensure server is running on PC and both devices are on same Wi-Fi.`, "alert");
+        }
+    }
 
     if (configBtn && configDropdown) {
         // Toggle dropdown visibility
@@ -823,9 +874,9 @@ document.addEventListener("DOMContentLoaded", () => {
             e.stopPropagation();
             const isHidden = configDropdown.classList.contains("hide");
             if (isHidden) {
-                // Populate current URL
                 const currentUrl = localStorage.getItem("backend_url") || (window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1" ? "http://127.0.0.1:8000" : window.location.origin);
                 configInput.value = currentUrl;
+                if (configStatusMsg) configStatusMsg.style.display = "none";
                 configDropdown.classList.remove("hide");
             } else {
                 configDropdown.classList.add("hide");
@@ -840,23 +891,20 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         // Save custom backend URL
-        saveConfigBtn.addEventListener("click", () => {
-            let val = configInput.value.trim();
-            if (val) {
-                if (!val.startsWith("http://") && !val.startsWith("https://")) {
-                    val = "http://" + val;
-                }
-                localStorage.setItem("backend_url", val);
-                logToConsole(`Updated backend API endpoint to: ${val}`, "system");
-                configDropdown.classList.add("hide");
-                checkBackendStatus();
+        saveConfigBtn.addEventListener("click", saveBackendConfig);
+
+        // Enter key on keyboard
+        configInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                saveBackendConfig();
             }
         });
 
         // Reset custom backend URL to default
         resetConfigBtn.addEventListener("click", () => {
             localStorage.removeItem("backend_url");
-            logToConsole("Reset backend API endpoint to default localhost", "system");
+            if (configStatusMsg) configStatusMsg.style.display = "none";
+            logToConsole("Reset backend API endpoint to default", "system");
             configDropdown.classList.add("hide");
             checkBackendStatus();
         });
@@ -867,8 +915,22 @@ document.addEventListener("DOMContentLoaded", () => {
         const qrCard = document.getElementById("mobile-qr-card");
         const qrImg = document.getElementById("qr-code-img");
         const qrLink = document.getElementById("mobile-url-link");
+        const closeQrBtn = document.getElementById("close-qr-btn");
         
         if (!qrCard || !qrImg || !qrLink) return;
+        
+        // Hide permanently if previously dismissed by the user
+        if (localStorage.getItem("hide_mobile_qr") === "true") {
+            qrCard.classList.add("hide");
+            return;
+        }
+        
+        if (closeQrBtn) {
+            closeQrBtn.addEventListener("click", () => {
+                qrCard.classList.add("hide");
+                localStorage.setItem("hide_mobile_qr", "true");
+            });
+        }
         
         // Only display the QR Code if on PC (localhost or file path)
         const isPC = window.location.hostname === "localhost" || 

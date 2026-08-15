@@ -81,6 +81,11 @@ async def serve_icon():
         return FileResponse(path, media_type="image/svg+xml")
     return HTMLResponse("Icon not found", status_code=404)
 
+@app.get("/api/health")
+async def health_check():
+    """Lightweight health check endpoint for mobile/client status checking."""
+    return {"status": "ok", "app": "GeM Bid Intelligence"}
+
 @app.get("/api/network-info")
 async def get_network_info():
     """Returns local network IPs of the host PC for mobile connection."""
