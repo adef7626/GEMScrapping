@@ -48,8 +48,13 @@ class GeMTenderCrawler:
     def clean_category_name(self, category):
         # Remove anything in parentheses (e.g., "(MDEA)", "(In Kg)", "(V2)")
         cleaned = re.sub(r'\([^)]*\)', ' ', category)
+        # Remove specifications / standards (e.g., "conforming to IS 15583", "as per IS:517")
+        cleaned = re.sub(r'(?i)\b(conforming\s+to|as\s+per)\b.*$', ' ', cleaned)
+        # Remove transport / packaging / container modifiers (e.g., "in tanker", "in cylinder", "bulk supply")
+        cleaned = re.sub(r'(?i)\b(in\s+(tanker|tankers|cylinder|cylinders|drum|drums|bulk|bottle|bottles|container|containers|box|boxes))\b', ' ', cleaned)
+        cleaned = re.sub(r'(?i)\b(for\s+bulk\s+supply|bulk\s+supply)\b', ' ', cleaned)
         # Remove common unit/quantity/version labels (case-insensitive)
-        cleaned = re.sub(r'(?i)\b(in\s+(kg|kilograms?|nos|numbers?|ltrs?|litres?|packs?|pcs|pieces?|sets?|bags?|pairs?|box|meters?|mtrs?|pack))\b', ' ', cleaned)
+        cleaned = re.sub(r'(?i)\b(in\s+(kg|kilograms?|nos|numbers?|ltrs?|litres?|packs?|pcs|pieces?|sets?|bags?|pairs?|meters?|mtrs?|pack))\b', ' ', cleaned)
         cleaned = re.sub(r'(?i)\b(v\d+|q\d+)\b', ' ', cleaned)
         # Replace multiple spaces and trim
         cleaned = re.sub(r'\s+', ' ', cleaned).strip()
@@ -227,38 +232,53 @@ class GeMTenderCrawler:
             
             try:
                 yield {"type": "log", "message": "Navigating to GeM advance-search page..."}
-                await page.goto("https://bidplus.gem.gov.in/advance-search", wait_until="networkidle")
+                await page.goto("https://bidplus.gem.gov.in/advance-search", wait_until="domcontentloaded", timeout=45000)
+                await page.wait_for_selector("span.select2-selection", timeout=25000)
                 
                 yield {"type": "log", "message": "Interacting with Select2 category dropdown..."}
                 await page.click("span.select2-selection")
-                await page.wait_for_selector("input.select2-search__field")
+                await page.wait_for_selector("input.select2-search__field", timeout=10000)
                 
                 cleaned_search_name = self.clean_category_name(category_name)
                 
                 # Multi-stage dropdown search variations to maximize match chances in Select2
-                search_queries = [cleaned_search_name]
+                search_queries = []
+                if cleaned_search_name:
+                    search_queries.append(cleaned_search_name)
+                
                 words = cleaned_search_name.split()
+                if len(words) > 3:
+                    prefix_3 = " ".join(words[:3])
+                    if prefix_3 not in search_queries:
+                        search_queries.append(prefix_3)
                 if len(words) > 2:
-                    search_queries.append(" ".join(words[:2]))
-                longest_word = max(words, key=len) if words else ""
-                if longest_word and len(longest_word) >= 4 and longest_word not in search_queries:
-                    search_queries.append(longest_word)
+                    prefix_2 = " ".join(words[:2])
+                    if prefix_2 not in search_queries:
+                        search_queries.append(prefix_2)
+                
+                sig_words = [w for w in words if len(w) >= 5 and w.lower() not in {'conforming', 'tanker', 'supply', 'industrial'}]
+                if sig_words:
+                    longest = max(sig_words, key=len)
+                    if longest not in search_queries:
+                        search_queries.append(longest)
+                        
+                if not search_queries:
+                    search_queries = [category_name]
                     
                 selected = False
                 for q_idx, query in enumerate(search_queries):
                     yield {"type": "log", "message": f"Searching category in dropdown (Attempt {q_idx+1}/{len(search_queries)}): '{query}'"}
-                    # Clear and fill
+                    
+                    # Clear and type query with keystroke delay for reliable Select2 trigger
                     await page.fill("input.select2-search__field", "")
-                    await page.fill("input.select2-search__field", query)
+                    await page.type("input.select2-search__field", query, delay=35)
+                    await page.wait_for_timeout(1800)
                     
                     try:
-                        # Wait for options
-                        await page.wait_for_selector("li.select2-results__option", timeout=4000)
                         options = await page.query_selector_all("li.select2-results__option")
-                        
                         for opt in options:
                             text = await opt.inner_text()
-                            if "searching" in text.lower() or "no results" in text.lower():
+                            if not text or "searching" in text.lower() or "no results" in text.lower():
                                 continue
                             if self.is_category_matching(category_name, text):
                                 yield {"type": "log", "message": f"Found matching category option: '{text}'. Clicking..."}
@@ -318,7 +338,7 @@ class GeMTenderCrawler:
                     yield {"type": "log", "message": f"No active bids found on GeM for category '{category_name}'."}
                     use_fallback = False
             except Exception as e:
-                yield {"type": "log", "message": f"Advanced search failed or timed out: Category '{category_name}' not found or matched in dropdown. Skipping..."}
+                yield {"type": "log", "message": f"Advanced search skipped for '{category_name}': {str(e)}"}
             
             try:
                 yield {"type": "log", "message": f"Found {len(bid_urls)} matching bid document link(s) in total."}
